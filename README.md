@@ -1,7 +1,9 @@
 # GameSaveVault
 A program to manage saveFiles, allowing easy backups, giving access to more SaveSlots per game and so on.
 
-![Alt text](.git/screenshot.png)
+### Work in Progress, initial Commit soon
+
+![Alt text](.github/screenshot.png)
 
 ## Overview
 
