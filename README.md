@@ -4,7 +4,7 @@ A program to manage saveFiles, allowing easy backups, giving access to more Save
 
 ![Stars][Badge Stars] ![Watcher][Badge Watchers] ![Forks][Badge Forks]
 
-![Badge Last Commit][Badge Last Commit] ![Badge Security Policy][Badge Security Policy] ![Badge Open Issues][Badge Open Issues] ![Badge Open Pull Requests][Badge Open Pull Requests] ![Badge Contributors][Badge Contributors]
+![Black][Badge Black] ![Badge Last Commit][Badge Last Commit] ![Badge Security Policy][Badge Security Policy] ![Badge Open Issues][Badge Open Issues] ![Badge Open Pull Requests][Badge Open Pull Requests] ![Badge Contributors][Badge Contributors]
 
 ![Current supported Games](https://img.shields.io/badge/"Supported"_Games-24607-blue)
 > Savepaths may be wrong and are incomplete. Please contribute to the database. (WORK IN PROGRESS, full Steam/GOG/Epic Game Data Catalog coming in a different Repo with an API)
@@ -83,9 +83,7 @@ It allows for easy integration for per-Games functionality, so feel free to cont
 [Badge Watchers]: https://img.shields.io/github/watchers/JulianStiebler/GameSaveVault?style=social
 [Badge Forks]: https://img.shields.io/github/forks/JulianStiebler/GameSaveVault?style=social
 
-[Badge CodeQL]: https://img.shields.io/github/actions/workflow/status/JulianStiebler/GameSaveVault/black.yml?branch=main&label=CodeQL&logo=github&logoColor=white&style=for-the-badge
-[Badge Ruff]: https://img.shields.io/github/actions/workflow/status/JulianStiebler/GameSaveVault/ruff.yml?branch=main&label=Ruff%20Lint&logo=ruff&logoColor=white&style=for-the-badge
-
+[Badge Black]: https://img.shields.io/github/actions/workflow/status/JulianStiebler/GameSaveVault/black.yml?branch=main&label=Black-Formatter&logo=github&logoColor=white&style=for-the-badge
 [Badge Release Version]: https://img.shields.io/github/v/release/JulianStiebler/GameSaveVault?style=for-the-badge&logo=empty
 [Badge Release Date]: https://img.shields.io/github/release-date/JulianStiebler/GameSaveVault?style=for-the-badge&logo=empty
 [Badge Code Size]: https://img.shields.io/github/languages/code-size/JulianStiebler/GameSaveVault?style=for-the-badge&logo=empty
