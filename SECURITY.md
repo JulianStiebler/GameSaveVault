@@ -16,3 +16,6 @@ First, we are checking for 2 Registry Keys. They are used to recognize the platf
 
 After determining your Epic & Steam Library, we check for existence of Files in any given SavePath we know. This way we avoid scanning & analyzing unrelated files and also remove a lot of overhead.
 
+## False-positive virus check
+
+We are working on it, it is a common occurence with pyinstaller created python programs.

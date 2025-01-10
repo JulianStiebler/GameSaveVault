@@ -19,22 +19,28 @@ For more screenshots see [here](SCREENSHOTS.md)
 # Table of Contents
 1. [Roadmap](#roadmap)
 2. [Overview](#overview)
-3. [Features](#features)
-4. [Transparency](#transparency)
+3. [Transparency](#transparency)
+4. [Features](#features)
 5. [Built With](#built-with)
 
 ## Roadmap
 
-- Publish the API directory for this program so every1 can work on the dataset
-  - needs some polish and some development still
+(In Order)
 
-- Add GOG Library (already written, just needs implementation)
-
+> Up until next week
 - Extend the Information saved about Games. Data is already avaiable but needs ALOT processing (360k Files, 2GB Data just text)
   - Make it more clear which games need a path (add games that have no path to our database)
   - Add header_images from Steam, GOG and Epic Games (already avaiable as data but need to implement)
   - Add game resources for some Games (Steam Manual, etc.)
     - THIS BASICALLY REWORKS THE WHOLE KNOWNGAMEPATHS!
+---
+Then to allow easier contribution
+> Near februrary
+- Publish the API directory for this program so every1 can work on the dataset
+  - needs some polish and some development still
+
+- Add GOG Library (already written, just needs implementation)
+
 
 - Extend the Path-Database to Linux and Mac
 
@@ -44,6 +50,10 @@ The **GameSaveVault** is a tool that allows users to manage their game save file
 while also allowing for manual overriden. You can create easy and fast backups, name them and later execute game specific actions aswell.
 
 It allows for easy integration for per-Games functionality, so feel free to contribute full fledgeg SaveFile-Editors aswell. You wouldn't even need to port them; but we could link them per Game for easy Installation, remember theyr'e installation path and allow for fast execution from within the tool.
+
+## Transparency
+
+> As usual with pyinstaller and python scripts, it may be detected as virus which is a false-positive. We are working on fixing it.  For more details how we determine where you're games are at and so on, see [Security MarkDown](SECURITY.md).
 
 ## Features
 
@@ -56,9 +66,6 @@ It allows for easy integration for per-Games functionality, so feel free to cont
 - **Per Game Functionality**: Quick access links for resources to your favorite game.
 - **Seamless Steam Integration**: Seamless Steam-Data integration. Updates gameData we can get from Steam on a weekly basis. 
 
-## Transparency
-
-For more details how we determine where you're games are at and so on, see [Security MarkDown](SECURITY.md).
 
 ## Built with
 > Python, powered by tkinter + TTKBootstrap
