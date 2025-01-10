@@ -4,9 +4,10 @@ A program to manage saveFiles, allowing easy backups, giving access to more Save
 
 ![Stars][Badge Stars] ![Watcher][Badge Watchers] ![Forks][Badge Forks]
 
-![Black][Badge Black] ![Badge Last Commit][Badge Last Commit] ![Badge Security Policy][Badge Security Policy] ![Badge Open Issues][Badge Open Issues] ![Badge Open Pull Requests][Badge Open Pull Requests] ![Badge Contributors][Badge Contributors]
+![Black][Badge Black] ![Badge Last Commit][Badge Last Commit] ![Badge Security Policy][Badge Security Policy] ![Badge Open Issues][Badge Open Issues] ![Badge Open Pull Requests][Badge Open Pull Requests] ![Badge Contributors][Badge Contributors] ![Downloads][Badge Downloads] ![License][Badge License]
 
-![Current supported Games](https://img.shields.io/badge/"Supported"_Games-24607-blue)
+![Current supported Games](https://img.shields.io/badge/"Supported"_Games-24607-blue) [![Join us on Discord][Badge Discord]][Link Discord]
+
 > Savepaths may be wrong and are incomplete. Please contribute to the database. (WORK IN PROGRESS, full Steam/GOG/Epic Game Data Catalog coming in a different Repo with an API)
 
 > All known SavePaths are dynamically created and may be incorrect, incomplete or not avaiable. The biggest part are best estimates to what is known to Steam and a small part is carefully handcrafted. You can override a SavePath if you find it to be incorrect or mislocated. You can also add your own Games and Paths if one would be missing.
@@ -97,6 +98,9 @@ It allows for easy integration for per-Games functionality, so feel free to cont
 
 [Badge Downloads]: https://img.shields.io/github/downloads/JulianStiebler/GameSaveVault/total?style=for-the-badge&logo=empty
 [Badge License]: https://img.shields.io/github/license/JulianStiebler/GameSaveVault?style=for-the-badge&logo=empty
+
+[Badge Discord]: https://img.shields.io/badge/Discord-Join%20Us-blue
+[Link Discord]: https://discord.gg/ZR8dwkfw
 
 <!-- Aliases for Files -->
 [MD Security]: ./SECURITY.md
