@@ -1,0 +1,7 @@
+**/__pycache__/
+.venv/
+data/installedGames.json
+data/savegames/
+build/
+dist/
+
