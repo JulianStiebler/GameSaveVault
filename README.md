@@ -23,6 +23,7 @@ For more screenshots see [here](SCREENSHOTS.md)
 3. [Transparency](#transparency)
 4. [Features](#features)
 5. [Built With](#built-with)
+6. [Data for Nerds](#data-for-nerds)
 
 ## Roadmap
 
@@ -77,6 +78,17 @@ It allows for easy integration for per-Games functionality, so feel free to cont
 - `shutil`: For file and directory manipulation.
 - `os`: For interacting with the filesystem.
 - `tkinter`: For building the graphical user interface (GUI).
+
+## Data for Nerds
+
+
+Code lines: 1308
+Code lines API (private currently): 1092
+
+Total .json files: 359593
+Total size of .json files: 2,4 GB
+Total Steam Games: 110.392
+Total GOG Games: 10010
 
 
 <!-- Define URL aliases for badges -->
