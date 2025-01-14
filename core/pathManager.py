@@ -17,15 +17,15 @@ class PathManager:
         # Cache username for user folder detection
         self.USERNAME = os.environ.get('USERNAME', '')
 
-    def make_relative(self, path: str) -> str:
+    def path_make_relative(self, path: str) -> str:
         """Convert absolute path to relative using environment variables"""
         if not path:
             return path
             
-        norm_path = os.path.normpath(path).lower()
+        normalizedPath = os.path.normpath(path).lower()
         
         # Sort by specificity - try most specific paths first
-        sorted_paths = sorted(
+        sortedPath = sorted(
             self.SYSTEM_PATHS.items(),
             key=lambda x: (
                 # Primary sort by path specificity (more segments = more specific)
@@ -36,19 +36,19 @@ class PathManager:
             reverse=True  # Most specific first
         )
         
-        for env_var, sys_path in sorted_paths:
-            if norm_path.startswith(sys_path.lower()):
-                return path.replace(sys_path, env_var)
+        for envVar, sysPath in sortedPath:
+            if normalizedPath.startswith(sysPath.lower()):
+                return path.replace(sysPath, envVar)
                 
         return path
 
     @staticmethod
-    def is_relative_path(path: str) -> bool:
+    def path_check_relative(path: str) -> bool:
         return any(var.lower() in path.lower() for var in ['%userprofile%', '%appdata%', 
                                                           '%localappdata%', '%programfiles%'])
 
     @staticmethod
-    def expand_path(path: str, game_path_install: Optional[str] = None) -> str:
-        if game_path_install and '%gameinstall%' in path:
-            path = path.replace('%gameinstall%', game_path_install)
+    def path_expand(path: str, gamePathInstall: Optional[str] = None) -> str:
+        if gamePathInstall and '%gameinstall%' in path:
+            path = path.replace('%gameinstall%', gamePathInstall)
         return os.path.normpath(os.path.expandvars(path))
