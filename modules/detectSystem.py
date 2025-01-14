@@ -34,10 +34,10 @@ class DetectSystem:
     def saveInstalledGames(self, new_games: Dict[str, dict], platform: str = "General"):
         for game_name, game_data in new_games.items():
             # Convert paths to relative
-            if 'path_install' in game_data:
-                game_data['path_install'] = self.pathManager.path_make_relative(game_data['path_install'])
-            if 'path_save' in game_data:
-                game_data['path_save'] = self.pathManager.path_make_relative(game_data['path_save'])
+            if 'pathInstall' in game_data:
+                game_data['pathInstall'] = self.pathManager.path_make_relative(game_data['pathInstall'])
+            if 'pathSave' in game_data:
+                game_data['pathSave'] = self.pathManager.path_make_relative(game_data['pathSave'])
             
             # Update or create entry
             if game_name in self.installedGames:
@@ -45,8 +45,8 @@ class DetectSystem:
                 game_data['platform'] = platform
                 
                 # Preserve existing save_path if present
-                if 'path_save' in self.installedGames[game_name]:
-                    game_data['path_save'] = self.installedGames[game_name]['path_save']
+                if 'pathSave' in self.installedGames[game_name]:
+                    game_data['pathSave'] = self.installedGames[game_name]['pathSave']
                 
                 # Update existing entry
                 self.installedGames[game_name].update(game_data)
@@ -56,5 +56,5 @@ class DetectSystem:
                 self.installedGames[game_name] = game_data
 
         # Write updated data to file
-        with open(self.data.PATH_installedGames, 'w') as f:
+        with open(self.data.pathInstalledGames, 'w') as f:
             json.dump(self.installedGames, f, indent=4)

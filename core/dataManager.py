@@ -32,7 +32,7 @@ class DataManager:
         self.EPIC_registryKey = r"SOFTWARE\WOW6432Node\Epic Games\EpicGamesLauncher"
         
         self.PATH_APPID = f"{self.FOLDER_Data}/appid.json"
-        self.PATH_installedGames = f"{self.FOLDER_Data}/installedGames.json"
+        self.pathInstalledGames = f"{self.FOLDER_Data}/installedGames.json"
         self.PATH_knownGamePaths = f"{self.FOLDER_Data}/knownGamePaths.json"
         self.PATH_customGames = f"{self.FOLDER_Data}/customGames.json"
         
@@ -58,7 +58,7 @@ class DataManager:
         self.detectSystem = DetectSystem(self)
 
     def initApplication(self):
-        self.DATA_JSONinstalledGames = self.loadJSON(self.PATH_installedGames)
+        self.DATA_JSONinstalledGames = self.loadJSON(self.pathInstalledGames)
         self.DATA_JSONknownGamePaths = self.loadJSON(self.PATH_knownGamePaths)
         self.DATA_JSONcustomGames = self.loadJSON(self.PATH_customGames)
 

@@ -1,7 +1,7 @@
 {
     " Castle of Full Moon \u6708\u5706\u4e4b\u5821": {
-        "path_save": "%gameinstall%\\save",
-        "image_header": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1707210/header.jpg?t=1628035176",
+        "pathSave": "%gameinstall%\\save",
+        "imageHeader": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1707210/header.jpg?t=1628035176",
         "resources":{
             "manual": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/115300/manuals/CODMW3_PC_Manual_DEU.pdf?t=1692032509"
         }

@@ -11,15 +11,15 @@ class GameResources:
 
 @dataclass
 class KnownGamePath:
-    path_save: str
-    image_header: Optional[AnyUrl] = None
+    pathSave: str
+    imageHeader: Optional[AnyUrl] = None
     resources: Optional[GameResources] = None
 
 @dataclass
 class InstalledGame:
     name: str  # Required parameter
-    path_install: Optional[str] = None
-    path_save: Optional[str] = None
+    pathInstall: Optional[str] = None
+    pathSave: Optional[str] = None
     appid: Optional[str] = None
     installdir: Optional[str] = None
     platform: str = "General"  # Default, but can be overridden
@@ -34,8 +34,8 @@ class InstalledGame:
         return cls(
             name=name,
             platform=platform,
-            path_install=data.get('path_install'),
-            path_save=data.get('path_save'),
+            pathInstall=data.get('pathInstall'),
+            pathSave=data.get('pathSave'),
             appid=data.get('appid'),
             installdir=data.get('installdir')
         )

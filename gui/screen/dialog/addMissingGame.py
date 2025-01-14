@@ -104,7 +104,7 @@ class AddMissingGameDialog:
 
         # Load current data
         customGames = self.data.loadJSON(self.data.PATH_customGames) if os.path.exists(self.data.PATH_customGames) else {"CustomPaths": {}}
-        installedGames = self.data.loadJSON(self.data.PATH_installedGames) if os.path.exists(self.data.PATH_installedGames) else {}
+        installedGames = self.data.loadJSON(self.data.pathInstalledGames) if os.path.exists(self.data.pathInstalledGames) else {}
 
         # Check if game exists in installed games
         if name in installedGames:

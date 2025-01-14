@@ -88,8 +88,8 @@ class DetectGamesSteam:
             return gameDetails
         
         # Check if the output file already exists and load the existing data
-        if os.path.exists(self.data.PATH_installedGames):
-            with open(self.data.PATH_installedGames, 'r', encoding='utf-8') as file:
+        if os.path.exists(self.data.pathInstalledGames):
+            with open(self.data.pathInstalledGames, 'r', encoding='utf-8') as file:
                 installedGames = json.load(file)
         else:
             installedGames = {}
@@ -116,31 +116,26 @@ class DetectGamesSteam:
                         installDir = gameDetails.get('installdir')
                         if installDir:
                             if os.path.isabs(installDir):
-                                gameDetails['path_install'] = os.path.normpath(installDir)
+                                gameDetails['pathInstall'] = os.path.normpath(installDir)
                             else:
-                                gameDetails['path_install'] = os.path.normpath(os.path.join(paths, "steamapps", "common", installDir))
+                                gameDetails['pathInstall'] = os.path.normpath(os.path.join(paths, "steamapps", "common", installDir))
 
-                            # If game already exists, update only non-existing fields, preserving path_save if exists
+                            # If game already exists, update only non-existing fields, preserving pathSave if exists
                             if gameName in installedGames:
                                 if installedGames[gameName].get('platform', "") in ["General", ""]:
                                     installedGames[gameName]['platform'] = "Steam"
-                                if 'path_save' in installedGames[gameName]:
-                                    gameDetails['path_save'] = installedGames[gameName]['path_save']
+                                if 'pathSave' in installedGames[gameName]:
+                                    gameDetails['pathSave'] = installedGames[gameName]['pathSave']
                                 # Update only fields that are not present
                                 installedGames[gameName].update({
                                     'appid': gameDetails['appid'],
-                                    'path_install': gameDetails['path_install'],
+                                    'pathInstall': gameDetails['pathInstall'],
                                     'installdir': gameDetails['installdir'],
                                     'name': gameName  # Add name if not already present
                                 })
                             else:
                                 # If the game is new, add all the data
                                 installedGames[gameName] = gameDetails
-
-        # Write the updated games data back to the output file
-        with open(self.data.PATH_installedGames, 'w', encoding='utf-8') as file:
-            json.dump(installedGames, file, indent=4)
-        print(f"\nInstalled games saved to {self.data.PATH_installedGames}.")
         return installedGames
 
 

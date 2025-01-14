@@ -45,8 +45,8 @@ class DetectGamesEpic:
 
         try:
             # Load existing installed games from the shared file
-            if os.path.exists(self.data.PATH_installedGames):
-                with open(self.data.PATH_installedGames, 'r', encoding='utf-8') as file:
+            if os.path.exists(self.data.pathInstalledGames):
+                with open(self.data.pathInstalledGames, 'r', encoding='utf-8') as file:
                     installedGames = json.load(file)
             else:
                 installedGames = {}
@@ -75,12 +75,12 @@ class DetectGamesEpic:
                             installedGames[gameName]['platform'] = "Epic"
 
                         installedGames[gameName].update({
-                            "path_install": os.path.normpath(installLocation),
+                            "pathInstall": os.path.normpath(installLocation),
                         })
                     else:
                         installedGames[gameName] = {
                             "platform": "Epic",
-                            "path_install": os.path.normpath(installLocation),
+                            "pathInstall": os.path.normpath(installLocation),
                         }
 
             return installedGames
