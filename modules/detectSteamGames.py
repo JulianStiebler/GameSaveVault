@@ -116,20 +116,20 @@ class DetectGamesSteam:
                         installDir = gameDetails.get('installdir')
                         if installDir:
                             if os.path.isabs(installDir):
-                                gameDetails['install_path'] = os.path.normpath(installDir)
+                                gameDetails['path_install'] = os.path.normpath(installDir)
                             else:
-                                gameDetails['install_path'] = os.path.normpath(os.path.join(paths, "steamapps", "common", installDir))
+                                gameDetails['path_install'] = os.path.normpath(os.path.join(paths, "steamapps", "common", installDir))
 
-                            # If game already exists, update only non-existing fields, preserving save_path if exists
+                            # If game already exists, update only non-existing fields, preserving path_save if exists
                             if gameName in installedGames:
                                 if installedGames[gameName].get('platform', "") in ["General", ""]:
                                     installedGames[gameName]['platform'] = "Steam"
-                                if 'save_path' in installedGames[gameName]:
-                                    gameDetails['save_path'] = installedGames[gameName]['save_path']
+                                if 'path_save' in installedGames[gameName]:
+                                    gameDetails['path_save'] = installedGames[gameName]['path_save']
                                 # Update only fields that are not present
                                 installedGames[gameName].update({
                                     'appid': gameDetails['appid'],
-                                    'install_path': gameDetails['install_path'],
+                                    'path_install': gameDetails['path_install'],
                                     'installdir': gameDetails['installdir'],
                                     'name': gameName  # Add name if not already present
                                 })

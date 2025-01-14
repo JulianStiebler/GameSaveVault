@@ -2,14 +2,18 @@ import json
 from .detectEpicGames import DetectGamesEpic
 from .detectSteamGames import DetectGamesSteam
 from .detectGeneralGames import DetectGamesGeneral
+from core.pathManager import PathManager
+from typing import Dict
+from core.model import InstalledGame, KnownGamePath
 
 class DetectSystem:
     def __init__(self, dataManager):
         self.data = dataManager
+        self.pathManager = PathManager()
         self.detectEpic = DetectGamesEpic(self.data)
         self.detectSteam = DetectGamesSteam(self.data)
         self.detectGeneral = DetectGamesGeneral(self.data)
-        self.installedGames = {}
+        self.installedGames: Dict[str, InstalledGame] = {}
         
     def initEpicLibrary(self):
         self.data.PATH_epicLibrary = self.detectEpic.GetInstallPath()
@@ -27,10 +31,18 @@ class DetectSystem:
         self.data.DATA_GEN_library = self.detectGeneral.GetSaveFolders()
         self.saveInstalledGames(self.data.DATA_GEN_library)
 
-    def saveInstalledGames(self, data):
-        try:
-            self.installedGames.update(data)
-            with open(self.data.PATH_installedGames, 'w') as f:
-                json.dump(self.installedGames, f, indent=4)
-        except Exception as e:
-            print(f"Error saving installed games: {e}")
+    def saveInstalledGames(self, installedGames: Dict[str, dict]):
+        # Convert dictionary data to InstalledGame objects
+        for gameName, gameData in installedGames.items():
+            # Convert paths to relative before creating InstalledGame
+            if 'path_install' in gameData:
+                gameData['path_install'] = self.pathManager.make_relative(gameData['path_install'])
+            if 'path_save' in gameData:
+                gameData['path_save'] = self.pathManager.make_relative(gameData['path_save'])
+                
+            gameObject = InstalledGame.from_dict(gameData)
+            self.installedGames[gameName] = gameObject.to_dict()
+
+        # Save to file
+        with open(self.data.PATH_installedGames, 'w') as f:
+            json.dump(self.installedGames, f, indent=4)

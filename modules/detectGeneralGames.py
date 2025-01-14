@@ -23,70 +23,43 @@ class DetectGamesGeneral:
         self.data = data
         
     def GetSaveFolders(self):
-        def helper_expandPath(path: str, installedGames: dict, game: str) -> str:
-            """Helper function to expand path and resolve '%gameinstall%'."""
-            # Check if the path contains '%gameinstall%' and resolve it
-            if "%gameinstall%" in path:
-                # Ensure the game exists in installedGames
-                if game in installedGames and 'install_path' in installedGames[game]:
-                    # Replace '%gameinstall%' with the install_path
-                    install_path = installedGames[game]['install_path']
-                    path = path.replace("%gameinstall%", install_path)
-                else:
-                    print(f"Install path for '{game}' not found in installedGames.json.")
-                    return None
-            # Normalize and expand the path
-            expandedPath = os.path.expandvars(path)
-            return os.path.normpath(expandedPath)
-
-        # Read the input JSON file containing save paths
         try:
             with open(self.data.PATH_knownGamePaths, 'r') as f:
-                inputData = json.load(f)
+                known_paths = json.load(f)
         except FileNotFoundError:
-            print(f"Input JSON file '{self.data.PATH_knownGamePaths}' not found.")
-            return
-        
+            print(f"Known game paths file not found: {self.data.PATH_knownGamePaths}")
+            return {}
+
         try:
             with open(self.data.PATH_installedGames, 'r') as f:
-                installedGames = json.load(f)
+                installed_games = json.load(f)
         except FileNotFoundError:
-            print(f"Installed games file '{self.data.PATH_installedGames}' not found.")
-            return
-        except Exception as e:
-            print(f"Error reading '{self.data.PATH_installedGames}': {e}")
-            return
-        
-        # Iterate through the game paths in the input JSON and check if they exist
-        for game, path in inputData.get("Savepaths", {}).items():
-            # Get the expanded save path
-            expandedPath = helper_expandPath(path, installedGames, game)
+            installed_games = {}
 
-            if expandedPath is None:
-                continue
-
-            # Debugging: print the expanded path to check if it's correct
-            print(f"Checking save path for '{game}': {expandedPath}")
-
-            # Ensure path ends with a backslash
-            if not expandedPath.endswith(os.sep):
-                expandedPath = expandedPath + os.sep
-
-            # Check if the path exists
-            if Path(expandedPath).exists():
-                print(f"Found valid save path for '{game}': {expandedPath}")
-                
-                # Add or update the save path for the game in installedGames
-                if game in installedGames:
-                    installedGames[game]['save_path'] = expandedPath  # Update save_path
+        for game_name, path_data in known_paths.items():
+            # Handle both string paths and complex objects
+            path_save = path_data.get('path_save', path_data) if isinstance(path_data, dict) else path_data
+            
+            if "%gameinstall%" in path_save:
+                if game_name in installed_games and 'path_install' in installed_games[game_name]:
+                    path_install = installed_games[game_name]['path_install']
+                    path_save = path_save.replace("%gameinstall%", path_install)
                 else:
-                    # If the game does not exist, create a new entry with save_path only
-                    installedGames[game] = {"save_path": expandedPath}
-                    
-                if 'platform' not in installedGames[game] or not installedGames[game]['platform']:
-                    installedGames[game]['platform'] = "General"  # Update platform only if not already set
+                    print(f"Install path for '{game_name}' not found")
+                    continue
+
+            expanded_path = os.path.normpath(os.path.expandvars(path_save))
+            if Path(expanded_path).exists():
+                print(f"Found valid save path for '{game_name}': {expanded_path}")
+                if game_name in installed_games:
+                    installed_games[game_name]['path_save'] = path_save  # Store original path
+                else:
+                    installed_games[game_name] = {
+                        "platform": "General",
+                        "path_save": path_save  # Store original path
+                    }
             else:
-                print(f"Save path does not exist for '{game}': {expandedPath}")
-                
-        return installedGames
+                print(f"Save path does not exist: {expanded_path}")
+
+        return installed_games
 

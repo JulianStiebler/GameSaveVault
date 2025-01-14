@@ -73,7 +73,7 @@ class SaveFileManager:
 
         # Add known games only if not already in installed games, sorted alphabetically
         knownGames = sorted(
-            [(game, False) for game, path in self.data.DATA_JSONknownGamePaths["Savepaths"].items() if game.lower() not in installedGameNames],
+            [(game, False) for game, path in self.data.DATA_JSONknownGamePaths.items() if game.lower() not in installedGameNames],
             key=lambda x: x[0].lower()  # Sorting by the game name (case-insensitive)
         )
         self.gameList.extend(knownGames)
@@ -91,9 +91,9 @@ class SaveFileManager:
                 self.LIST_games.insert("", "end", text=f"{status} {game}")
 
     def updatePaths(self):
-        installPath = self.data.DATA_JSONinstalledGames.get(self.selectedGameToDisplayDetails, {}).get("install_path", None)
-        savePath = self.data.DATA_JSONinstalledGames.get(self.selectedGameToDisplayDetails, {}).get("save_path", None)
-        knownSavePath = self.data.DATA_JSONknownGamePaths["Savepaths"].get(self.selectedGameToDisplayDetails, "Unknown Path")
+        installPath = self.data.DATA_JSONinstalledGames.get(self.selectedGameToDisplayDetails, {}).get("path_install", None)
+        savePath = self.data.DATA_JSONinstalledGames.get(self.selectedGameToDisplayDetails, {}).get("path_save", None)
+        knownSavePath = self.data.DATA_JSONknownGamePaths.get(self.selectedGameToDisplayDetails, "Unknown Path")
 
         self.LBL_installPath.config(text=f"Installation Folder: {installPath}" if installPath else "Installation folder not found.")
         self.LBL_savePath.config(text=f"Save Path: {savePath}" if savePath else f"Default Save Path: {knownSavePath}")
@@ -105,7 +105,7 @@ class SaveFileManager:
         for item in self.LIST_savePathContent.get_children():
             self.LIST_savePathContent.delete(item)
 
-        savePath = self.data.DATA_JSONinstalledGames.get(self.selectedGameToDisplayDetails, {}).get("save_path", None)
+        savePath = self.data.DATA_JSONinstalledGames.get(self.selectedGameToDisplayDetails, {}).get("path_save", None)
         if savePath and os.path.exists(savePath):
             for file in os.listdir(savePath):
                 filePath = os.path.join(savePath, file)
@@ -136,7 +136,7 @@ class SaveFileManager:
     def BackupCreate(self, isNamed=False):
         sanitizedGameName = util.sanitizeFolderName_fix(self.selectedGameToDisplayDetails)
         
-        savePath = self.data.DATA_JSONinstalledGames[self.selectedGameToDisplayDetails].get("save_path", "")
+        savePath = self.data.DATA_JSONinstalledGames[self.selectedGameToDisplayDetails].get("path_save", "")
         backupFolder = os.path.join(data.FOLDER_SaveGames, sanitizedGameName)
         os.makedirs(backupFolder, exist_ok=True)
         
@@ -185,7 +185,7 @@ class SaveFileManager:
         backupFolder = os.path.join(data.FOLDER_SaveGames, sanitizedGameName)
         zipPath = os.path.join(backupFolder, zipFile)
 
-        savePath = self.data.DATA_JSONinstalledGames[self.selectedGameToDisplayDetails].get("save_path", "")
+        savePath = self.data.DATA_JSONinstalledGames[self.selectedGameToDisplayDetails].get("path_save", "")
         if savePath:
             shutil.rmtree(savePath)
             os.makedirs(savePath, exist_ok=True)
@@ -194,26 +194,26 @@ class SaveFileManager:
         messagebox.showinfo("Success", f"Selected backup '{zipFile}' applied successfully!")
 
     def __openInstallationFolder(self):
-        installPath = self.data.DATA_JSONinstalledGames[self.selectedGameToDisplayDetails].get("install_path", None)
+        installPath = self.data.DATA_JSONinstalledGames[self.selectedGameToDisplayDetails].get("path_install", None)
         if installPath:
             util.openFolderInExplorer(installPath)
 
     def __openSaveFolder(self):
-        savePath = self.data.DATA_JSONinstalledGames[self.selectedGameToDisplayDetails].get("save_path", None)
+        savePath = self.data.DATA_JSONinstalledGames[self.selectedGameToDisplayDetails].get("path_save", None)
         if savePath:
             util.openFolderInExplorer(savePath)
             
     def __setInstallPath(self):
         folder = filedialog.askdirectory(title="Select Installation Folder")
         if folder:
-            self.data.DATA_JSONinstalledGames.setdefault(self.selectedGameToDisplayDetails, {})["install_path"] = folder
+            self.data.DATA_JSONinstalledGames.setdefault(self.selectedGameToDisplayDetails, {})["path_install"] = folder
             self.updatePaths()
             self.data.saveJSON(self.data.PATH_JSONinstalledGames, self.data.DATA_JSONinstalledGames)
 
     def __setSavePath(self):
         folder = filedialog.askdirectory(title="Select Save Path Folder")
         if folder:
-            self.data.DATA_JSONinstalledGames.setdefault(self.selectedGameToDisplayDetails, {})["save_path"] = folder
+            self.data.DATA_JSONinstalledGames.setdefault(self.selectedGameToDisplayDetails, {})["path_save"] = folder
             self.updatePaths()
             self.updateSaveFolderContents()
             self.data.saveJSON(self.data.PATH_JSONinstalledGames, self.data.DATA_JSONinstalledGames)
@@ -240,8 +240,8 @@ class SaveFileManager:
             installedGames = self.data.loadJSON(self.data.PATH_installedGames) if os.path.exists(self.data.PATH_installedGames) else {}
             installedGames[gameName] = {
                 "platform": "Custom",
-                **({"install_path": installPath} if installPath else {}),
-                **({"save_path": savePath} if savePath else {})
+                **({"path_install": installPath} if installPath else {}),
+                **({"path_save": savePath} if savePath else {})
             }
             self.data.saveJSON(self.data.PATH_installedGames, installedGames)
 

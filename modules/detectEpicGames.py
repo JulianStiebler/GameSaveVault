@@ -75,12 +75,12 @@ class DetectGamesEpic:
                             installedGames[gameName]['platform'] = "Epic"
 
                         installedGames[gameName].update({
-                            "install_path": os.path.normpath(installLocation),
+                            "path_install": os.path.normpath(installLocation),
                         })
                     else:
                         installedGames[gameName] = {
                             "platform": "Epic",
-                            "install_path": os.path.normpath(installLocation),
+                            "path_install": os.path.normpath(installLocation),
                         }
 
             return installedGames
