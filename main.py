@@ -8,9 +8,9 @@
 # Last Edited: 11.01.2025
 """
 
-from core.gui import SaveFileManager
-from screen.splash import SplashScreen
-from core.dataManager import DataManger
+from core.app import SaveFileManager
+from gui.screen.splash import SplashScreen
+from core.dataManager import DataManager
 import ttkbootstrap as ttk
 
 def initGameSaveVault(splash, steps, root, data):
@@ -33,7 +33,7 @@ def initGameSaveVault(splash, steps, root, data):
 
 if __name__ == "__main__":
     # Create main window first but don't show it
-    data = DataManger()
+    data = DataManager()
     ROOT_main = ttk.Window(themename=data.WINDOW_STYLE)
     ROOT_main.withdraw()
 

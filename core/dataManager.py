@@ -14,7 +14,7 @@ from modules.detectEpicGames import DetectGamesEpic
 from modules.detectSteamGames import DetectGamesSteam
 from modules.detectGeneralGames import DetectGamesGeneral
 
-class DataManger:
+class DataManager:
     def __init__(self):
         self.PATH_steamLibrary = ""
         self.PATH_steamExe = ""
