@@ -10,25 +10,27 @@
 
 import json
 from datetime import datetime
-from modules.detectEpicGames import DetectGamesEpic
-from modules.detectSteamGames import DetectGamesSteam
-from modules.detectGeneralGames import DetectGamesGeneral
+from modules.detectSystem import DetectSystem
 
 class DataManager:
     def __init__(self):
         self.PATH_steamLibrary = ""
+        self.DATA_STEAM_library = ""
+        
+        self.DATA_EPIC_library = ""
         self.PATH_steamExe = ""
         self.PATH_epicLibrary = ""
+        
+        self.DATA_GEN_library = ""
         
         self.FOLDER_Data = "data"
         self.FOLDER_SaveGames = f"{self.FOLDER_Data}/savegames"
         self.FOLDER_Paths = f"{self.FOLDER_Data}/paths"
         
         self.URL_SteamAppIDs = "https://api.steampowered.com/ISteamApps/GetAppList/v2/"
-        self.REGISTRY_STEAM = r"SOFTWARE\Valve\Steam"
-        self.REGISTRY_EPIC = r"SOFTWARE\WOW6432Node\Epic Games\EpicGamesLauncher"
+        self.STEAM_registryKey = r"SOFTWARE\Valve\Steam"
+        self.EPIC_registryKey = r"SOFTWARE\WOW6432Node\Epic Games\EpicGamesLauncher"
         
-        self.PATH_KNOWNPATHS = f"{self.FOLDER_Data}/knownGamePaths.json"
         self.PATH_APPID = f"{self.FOLDER_Data}/appid.json"
         self.PATH_installedGames = f"{self.FOLDER_Data}/installedGames.json"
         self.PATH_knownGamePaths = f"{self.FOLDER_Data}/knownGamePaths.json"
@@ -53,22 +55,7 @@ class DataManager:
         self.URL_GitHub_FeatureRequest = f"https://github.com/{self.GITHUB_ORIGIN}/{self.GITHUB_PROJECT}/issues/new?assignees={self.GITHUB_ASSIGNEES}&labels=feature&projects=&template=feature_request.md&title=Feature+request"
         self.URL_GitHub_BugReport = f"https://github.com/{self.GITHUB_ORIGIN}/{self.GITHUB_PROJECT}/issues/new?assignees={self.GITHUB_ASSIGNEES}&labels=bug&projects=&template=bug_report.md&title=Bug+report"
 
-        self.detectEpic = DetectGamesEpic()
-        self.detectSteam = DetectGamesSteam()
-        self.detectGames = DetectGamesGeneral()
-        
-    def initSteamLibrary(self):
-        self.detectSteam.GetAppIDList(self.URL_SteamAppIDs, self.PATH_APPID)
-        self.PATH_steamExe = self.detectSteam.GetInstallPath(self.REGISTRY_STEAM)
-        self.PATH_steamLibrary = self.detectSteam.GetLibraryPath(self.PATH_steamExe)
-        self.detectSteam.GetInstalledGames(self.PATH_steamLibrary, self.PATH_installedGames)
-
-    def initEpicLibrary(self):
-        self.PATH_epicLibrary = self.detectEpic.GetInstallPath(self.REGISTRY_EPIC)
-        self.detectEpic.GetInstalledGames(self.PATH_epicLibrary, self.PATH_installedGames)
-
-    def initGeneralLibrary(self):
-        self.detectGames.GetSaveFolders(self.PATH_knownGamePaths, self.PATH_installedGames)
+        self.detectSystem = DetectSystem(self)
 
     def initApplication(self):
         self.DATA_JSONinstalledGames = self.loadJSON(self.PATH_installedGames)

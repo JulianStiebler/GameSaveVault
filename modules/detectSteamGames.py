@@ -14,6 +14,9 @@ import os
 import winreg
 
 class DetectGamesSteam:
+    def __init__(self, data):
+        self.data = data
+    
     @staticmethod
     def GetAppIDList(url, outputFile):
         response = requests.get(url)
@@ -32,22 +35,20 @@ class DetectGamesSteam:
         else:
             print(f"Error fetching API data. Status Code: {response.status_code}")
 
-    @staticmethod
-    def GetInstallPath(regKey):
+    def GetInstallPath(self):
         try:
-            registryKey = winreg.OpenKey(winreg.HKEY_CURRENT_USER, regKey)
+            registryKey = winreg.OpenKey(winreg.HKEY_CURRENT_USER, self.data.STEAM_registryKey)
             steamPath, _ = winreg.QueryValueEx(registryKey, "SteamPath")
             return steamPath
         except FileNotFoundError:
             print("Steam path not found in the registry.")
             return None
 
-    @staticmethod
-    def GetLibraryPath(steamPath):
-        libraryFolderPath = os.path.join(steamPath, "steamapps", "libraryfolders.vdf")
+    def GetLibraryPath(self):
+        libraryFolderPath = os.path.join(self.data.PATH_steamExe, "steamapps", "libraryfolders.vdf")
 
         if not os.path.exists(libraryFolderPath):
-            print(f"libraryfolders.vdf not found in {steamPath}.")
+            print(f"libraryfolders.vdf not found in {self.data.PATH_steamExe}.")
             return []
 
         # Read and parse the VDF file manually (as a normal text file)
@@ -65,8 +66,7 @@ class DetectGamesSteam:
 
         return libraryPaths
 
-    @staticmethod
-    def GetInstalledGames(libraryPath, outputFile):
+    def GetInstalledGames(self):
         def helper_ParseACFFile(ACFFilePath):
             gameDetails = {}
             
@@ -88,13 +88,13 @@ class DetectGamesSteam:
             return gameDetails
         
         # Check if the output file already exists and load the existing data
-        if os.path.exists(outputFile):
-            with open(outputFile, 'r', encoding='utf-8') as file:
+        if os.path.exists(self.data.PATH_installedGames):
+            with open(self.data.PATH_installedGames, 'r', encoding='utf-8') as file:
                 installedGames = json.load(file)
         else:
             installedGames = {}
 
-        for paths in libraryPath:
+        for paths in self.data.PATH_steamLibrary:
             steamAppsPaths = os.path.join(paths, "steamapps")
 
             # Check if the steamapps folder exists
@@ -138,9 +138,9 @@ class DetectGamesSteam:
                                 installedGames[gameName] = gameDetails
 
         # Write the updated games data back to the output file
-        with open(outputFile, 'w', encoding='utf-8') as file:
+        with open(self.data.PATH_installedGames, 'w', encoding='utf-8') as file:
             json.dump(installedGames, file, indent=4)
-        print(f"\nInstalled games saved to {outputFile}.")
+        print(f"\nInstalled games saved to {self.data.PATH_installedGames}.")
         return installedGames
 
 

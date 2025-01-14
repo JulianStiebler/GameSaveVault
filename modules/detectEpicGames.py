@@ -13,23 +13,21 @@ import os
 import winreg
 
 class DetectGamesEpic:
-    def __init__(self):
-        pass
+    def __init__(self, data):
+        self.data = data
 
-    @staticmethod
-    def GetInstallPath(regKey):
+    def GetInstallPath(self):
         """Fetch the Epic Games installation path from the Windows registry."""
         try:
             # Open the Epic Games registry key
-            registryKey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, regKey)
+            registryKey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, self.data.EPIC_registryKey)
             epicPath, _ = winreg.QueryValueEx(registryKey, "AppDataPath")
             return epicPath
         except FileNotFoundError:
             print("Epic Games registry path not found.")
             return None
 
-    @staticmethod
-    def GetInstalledGames(epicPath, outputFile):
+    def GetInstalledGames(self, epicPath):
         """Fetch and save installed games from the LauncherInstalled.dat file."""
         if epicPath is None:
             print("Epic Games path is None.")
@@ -47,8 +45,8 @@ class DetectGamesEpic:
 
         try:
             # Load existing installed games from the shared file
-            if os.path.exists(outputFile):
-                with open(outputFile, 'r', encoding='utf-8') as file:
+            if os.path.exists(self.data.PATH_installedGames):
+                with open(self.data.PATH_installedGames, 'r', encoding='utf-8') as file:
                     installedGames = json.load(file)
             else:
                 installedGames = {}
@@ -85,11 +83,8 @@ class DetectGamesEpic:
                             "install_path": os.path.normpath(installLocation),
                         }
 
-            # Save the updated games data back to the shared file
-            with open(outputFile, 'w', encoding='utf-8') as file:
-                json.dump(installedGames, file, indent=4)
-
-            print(f"Installed games saved to {outputFile}.")
+            return installedGames
         except Exception as e:
             print(f"Error reading or parsing {epicGamesInfoFile}: {e}")
+            return {}
 

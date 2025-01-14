@@ -12,12 +12,59 @@ import os
 import json
 from pathlib import Path
 
-class DetectGamesGeneral:
-    def __init__(self):
-        pass
+from dataclasses import dataclass
+from pathlib import Path
+import json
+import os
+from typing import Dict, Optional
+
+@dataclass
+class GamePath:
+    """Represents a single game's save path configuration"""
+    name: str
+    raw_path: str  # Original path from JSON with variables
+    expanded_path: Optional[str] = None  # Path after variable expansion
+    exists: bool = False
+    platform: str = "General"
+
+class KnownGamePaths:
+    def __init__(self, data_manager):
+        self.data = data_manager
+        self.paths: Dict[str, GamePath] = {}
+    
+    def load_paths(self) -> None:
+        """Load paths from knownGamePaths.json"""
+        try:
+            with open(self.data.PATH_knownGamePaths, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                for game_name, path in data.get("Savepaths", {}).items():
+                    self.paths[game_name] = GamePath(
+                        name=game_name,
+                        raw_path=path
+                    )
+        except FileNotFoundError:
+            print(f"Known game paths file not found: {self.data.PATH_knownGamePaths}")
+        except json.JSONDecodeError:
+            print(f"Invalid JSON in: {self.data.PATH_knownGamePaths}")
+
+    def expand_path(self, game_path: GamePath, installed_games: dict) -> None:
+        """Expand variables in path"""
+        path = game_path.raw_path
         
-    @staticmethod
-    def GetSaveFolders(knownGamePaths, outputFile):
+        if "%gameinstall%" in path and game_path.name in installed_games:
+            install_path = installed_games[game_path.name].get('install_path')
+            if install_path:
+                path = path.replace("%gameinstall%", install_path)
+        
+        path = os.path.expandvars(path)
+        game_path.expanded_path = os.path.normpath(path)
+        game_path.exists = Path(game_path.expanded_path).exists()
+
+class DetectGamesGeneral:
+    def __init__(self, data):
+        self.data = data
+        
+    def GetSaveFolders(self):
         def helper_expandPath(path: str, installedGames: dict, game: str) -> str:
             """Helper function to expand path and resolve '%gameinstall%'."""
             # Check if the path contains '%gameinstall%' and resolve it
@@ -36,20 +83,20 @@ class DetectGamesGeneral:
 
         # Read the input JSON file containing save paths
         try:
-            with open(knownGamePaths, 'r') as f:
+            with open(self.data.PATH_knownGamePaths, 'r') as f:
                 inputData = json.load(f)
         except FileNotFoundError:
-            print(f"Input JSON file '{knownGamePaths}' not found.")
+            print(f"Input JSON file '{self.data.PATH_knownGamePaths}' not found.")
             return
         
         try:
-            with open(outputFile, 'r') as f:
+            with open(self.data.PATH_installedGames, 'r') as f:
                 installedGames = json.load(f)
         except FileNotFoundError:
-            print(f"Installed games file '{outputFile}' not found.")
+            print(f"Installed games file '{self.data.PATH_installedGames}' not found.")
             return
         except Exception as e:
-            print(f"Error reading '{outputFile}': {e}")
+            print(f"Error reading '{self.data.PATH_installedGames}': {e}")
             return
         
         # Iterate through the game paths in the input JSON and check if they exist
@@ -83,10 +130,3 @@ class DetectGamesGeneral:
             else:
                 print(f"Save path does not exist for '{game}': {expandedPath}")
 
-        # Write the updated installedGames data back to the file
-        try:
-            with open(outputFile, 'w') as f:
-                json.dump(installedGames, f, indent=4)
-            print(f"Games saved to {outputFile}")
-        except Exception as e:
-            print(f"Error writing to '{outputFile}': {e}")

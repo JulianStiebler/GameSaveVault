@@ -42,9 +42,9 @@ if __name__ == "__main__":
     splash = SplashScreen(ROOT_splash)
 
     steps = [
-        ("Initializing Epic Library...", data.initEpicLibrary),
-        ("Initializing Steam Library...", data.initSteamLibrary),
-        ("Initializing General Library...", data.initGeneralLibrary),
+        ("Initializing Epic Library...", data.detectSystem.initEpicLibrary),
+        ("Initializing Steam Library...", data.detectSystem.initSteamLibrary),
+        ("Initializing General Library...", data.detectSystem.initGeneralLibrary),
         ("Loading Application Data...", data.initApplication)
     ]
 
