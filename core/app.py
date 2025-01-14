@@ -95,8 +95,8 @@ class SaveFileManager:
         savePath = self.data.DATA_JSONinstalledGames.get(self.selectedGameToDisplayDetails, {}).get("pathSave", None)
         knownSavePath = self.data.DATA_JSONknownGamePaths.get(self.selectedGameToDisplayDetails, "Unknown Path")
 
-        self.LBL_installPath.config(text=f"Installation Folder: {installPath}" if installPath else "Installation folder not found.")
-        self.LBL_savePath.config(text=f"Save Path: {savePath}" if savePath else f"Default Save Path: {knownSavePath}")
+        self.LBL_installPath.config(text=f"Installation Folder: {self.data.detectSystem.pathManager.path_make_relative(installPath)}" if installPath else "Installation folder not found.")
+        self.LBL_savePath.config(text=f"Save Path: {self.data.detectSystem.pathManager.path_make_relative(savePath)}" if savePath else f"Default Save Path: {knownSavePath}")
 
         self.BTN_openInstallPath.config(state=NORMAL if installPath else DISABLED)
         self.BTN_openSavePath.config(state=NORMAL if savePath else DISABLED)
@@ -105,6 +105,7 @@ class SaveFileManager:
         for item in self.LIST_savePathContent.get_children():
             self.LIST_savePathContent.delete(item)
 
+        # savePath = self.data.detectSystem.pathManager.getPathAbsolute(self.selectedGameToDisplayDetails, type="save")
         savePath = self.data.DATA_JSONinstalledGames.get(self.selectedGameToDisplayDetails, {}).get("pathSave", None)
         if savePath and os.path.exists(savePath):
             for file in os.listdir(savePath):
@@ -136,7 +137,9 @@ class SaveFileManager:
     def BackupCreate(self, isNamed=False):
         sanitizedGameName = util.sanitizeFolderName_fix(self.selectedGameToDisplayDetails)
         
-        savePath = self.data.DATA_JSONinstalledGames[self.selectedGameToDisplayDetails].get("pathSave", "")
+        savePath = self.data.detectSystem.pathManager.path_expand(
+                        self.data.DATA_JSONinstalledGames[self.selectedGameToDisplayDetails].get("pathSave", "")
+        )
         backupFolder = os.path.join(data.FOLDER_SaveGames, sanitizedGameName)
         os.makedirs(backupFolder, exist_ok=True)
         
@@ -186,10 +189,11 @@ class SaveFileManager:
         zipPath = os.path.join(backupFolder, zipFile)
 
         savePath = self.data.DATA_JSONinstalledGames[self.selectedGameToDisplayDetails].get("pathSave", "")
-        if savePath:
+        if os.path.exists(savePath):
             shutil.rmtree(savePath)
-            os.makedirs(savePath, exist_ok=True)
-            util.extractZIPContent(zipPath, savePath)
+            
+        os.makedirs(savePath, exist_ok=True)
+        util.extractZIPContent(zipPath, savePath)
         self.updateLIST_backupContents()
         messagebox.showinfo("Success", f"Selected backup '{zipFile}' applied successfully!")
 

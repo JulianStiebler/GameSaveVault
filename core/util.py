@@ -16,7 +16,7 @@ invalidChars = r'[\/:*?"<>|]'
 
 @staticmethod
 def openFolderInExplorer(path):
-    os.startfile(os.path.expandvars(path))
+    os.startfile(path)
 
 @staticmethod
 def zipFolder(sourceFolder, zipFilePath, progressCallback=None):
@@ -38,6 +38,7 @@ def zipFolder(sourceFolder, zipFilePath, progressCallback=None):
 @staticmethod
 def extractZIPContent(zipFilePath, targetFolder):
     with zipfile.ZipFile(zipFilePath, 'r') as zipf:
+        os.makedirs(targetFolder, exist_ok=True)
         zipf.extractall(targetFolder)
 
 @staticmethod

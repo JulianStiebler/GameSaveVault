@@ -4,7 +4,7 @@ from typing import Dict, Optional
 class PathManager:
     """Handles path conversion between absolute and relative paths"""
     
-    def __init__(self):
+    def __init__(self, data):
         # Cache system paths in normalized form
         self.SYSTEM_PATHS = {
             '%localappdata%': os.path.normpath(os.environ.get('LOCALAPPDATA', '')),
@@ -15,6 +15,7 @@ class PathManager:
         }
         
         # Cache username for user folder detection
+        self.data = data
         self.USERNAME = os.environ.get('USERNAME', '')
 
     def path_make_relative(self, path: str) -> str:
@@ -49,6 +50,18 @@ class PathManager:
 
     @staticmethod
     def path_expand(path: str, gamePathInstall: Optional[str] = None) -> str:
-        if gamePathInstall and '%gameinstall%' in path:
-            path = path.replace('%gameinstall%', gamePathInstall)
+        if path:
+            if gamePathInstall and '%gameinstall%' in path:
+                path = path.replace('%gameinstall%', gamePathInstall)
+            return os.path.normpath(os.path.expandvars(path))
+        
+    def getPathAbsolute(self, selectedGameToDisplayDetails, type="save"):
+        if type == "save":
+            path = self.data.DATA_JSONinstalledGames[selectedGameToDisplayDetails].get("pathSave", "")
+        elif type == "install":
+            path = self.data.DATA_JSONinstalledGames[selectedGameToDisplayDetails].get("pathInstall", "")
+            
         return os.path.normpath(os.path.expandvars(path))
+
+    
+    

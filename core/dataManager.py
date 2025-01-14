@@ -11,6 +11,7 @@
 import json
 from datetime import datetime
 from modules.detectSystem import DetectSystem
+from core.pathManager import PathManager
 
 class DataManager:
     def __init__(self):
@@ -58,33 +59,49 @@ class DataManager:
         self.detectSystem = DetectSystem(self)
 
     def initApplication(self):
-        self.DATA_JSONinstalledGames = self.loadJSON(self.pathInstalledGames)
+        self.DATA_JSONinstalledGames = self.loadJSON(self.pathInstalledGames, convertRelativePaths=True)
         self.DATA_JSONknownGamePaths = self.loadJSON(self.PATH_knownGamePaths)
         self.DATA_JSONcustomGames = self.loadJSON(self.PATH_customGames)
 
     @staticmethod
-    def loadJSON(filePath):
+    def loadJSON(filePath, convertRelativePaths=False):
         """
         Load JSON data from a file.
-
+        
         Args:
-            file_path (str): Path to the JSON file.
-
+            filePath (str): Path to the JSON file
+            convertRelativePaths (bool): Convert relative paths to absolute if True
+        
         Returns:
-            dict: The parsed JSON data, or an empty dictionary if the file does not exist or cannot be loaded.
+            dict: Parsed JSON data with converted paths if specified
         """
         try:
             with open(filePath, 'r') as f:
-                return json.load(f)
+                data = json.load(f)
+                
+                if convertRelativePaths and "installedGames" in filePath:
+                    # Convert paths to absolute for in-memory use
+                    for game_data in data.values():
+                        if 'pathSave' in game_data:
+                            game_data['pathSave'] = PathManager.path_expand(
+                                game_data['pathSave'],
+                                game_data.get('pathInstall')
+                            )
+                        if 'pathInstall' in game_data:
+                            game_data['pathInstall'] = PathManager.path_expand(
+                                game_data['pathInstall']
+                            )
+                
+                return data
         except FileNotFoundError:
             print(f"File not found: {filePath}")
-            return {}  # Return an empty dictionary if the file doesn't exist
+            return {}
         except json.JSONDecodeError as e:
             print(f"Error decoding JSON from file {filePath}: {e}")
-            return {}  # Return an empty dictionary if JSON is malformed
+            return {}
         except Exception as e:
             print(f"Unexpected error reading file {filePath}: {e}")
-            return {}  # Return an empty dictionary for any other errors
+            return {}
         
     @staticmethod
     def saveJSON(filePath, data):

@@ -9,7 +9,7 @@ from core.model import InstalledGame, KnownGamePath
 class DetectSystem:
     def __init__(self, dataManager):
         self.data = dataManager
-        self.pathManager = PathManager()
+        self.pathManager = PathManager(self.data)
         self.detectEpic = DetectGamesEpic(self.data)
         self.detectSteam = DetectGamesSteam(self.data)
         self.detectGeneral = DetectGamesGeneral(self.data)
