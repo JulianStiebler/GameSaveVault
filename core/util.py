@@ -15,10 +15,6 @@ import re
 invalidChars = r'[\/:*?"<>|]'
 
 @staticmethod
-def openFolderInExplorer(path):
-    os.startfile(path)
-
-@staticmethod
 def zipFolder(sourceFolder, zipFilePath, progressCallback=None):
     # Count total files first
     total_files = sum([len(files) for _, _, files in os.walk(sourceFolder)])
@@ -41,19 +37,28 @@ def extractZIPContent(zipFilePath, targetFolder):
         os.makedirs(targetFolder, exist_ok=True)
         zipf.extractall(targetFolder)
 
-@staticmethod
-def sanitizeFolderName_fix(name):
-    """Replace invalid characters for folder names with an underscore."""
-    return re.sub(invalidChars, '_', name)
 
-@staticmethod
-def sanitizeFolderName_contains(name):
-        # List of invalid characters in windows filenames
-        return bool(re.search(invalidChars, name))
-
-@staticmethod
-def adjustTreeviewHeight(treeview, maxItems=10):
-        """Adjust the height of a Treeview dynamically."""
-        itemsCount = len(treeview.get_children())
-        treeview["height"] = min(itemsCount, maxItems)
+class Utility:
+    def __init__(self, data):
+        self.data = data
+    
+    @staticmethod
+    def adjustTreeviewHeight(treeview, maxItems=10):
+            """Adjust the height of a Treeview dynamically."""
+            itemsCount = len(treeview.get_children())
+            treeview["height"] = min(itemsCount, maxItems)
+    
         
+    @staticmethod
+    def sanitizeFolderName_fix(name):
+        """Replace invalid characters for folder names with an underscore."""
+        return re.sub(invalidChars, '_', name)
+
+    @staticmethod
+    def sanitizeFolderName_contains(name):
+            # List of invalid characters in windows filenames
+            return bool(re.search(invalidChars, name))
+        
+    @staticmethod
+    def openFolderInExplorer(path):
+        os.startfile(path)

@@ -15,7 +15,7 @@ import shutil
 from datetime import datetime
 from tkinter import filedialog, messagebox
 
-from core import DataManager
+from core import DataManager, Utility, BackupManager
 from core.model import PathInfo
 from core.enums import AppConfig, DataFile, DataFolder
 import core.util as util
@@ -30,6 +30,8 @@ class SaveFileManager:
         # ------------------------------------------ Application Init ------------------------------------------
         self.root = root
         self.data = data
+        self.utility = Utility(data)
+        self.backupManager = BackupManager(self.root, self.data, self.utility, self)
         self.root.title(AppConfig.TITLE.value)
         self.root.geometry(AppConfig.WINDOW_GEOMETRY.value)
         self.root.minsize(AppConfig.WINDOW_SIZE_X.value, AppConfig.WINDOW_SIZE_Y.value)
@@ -40,9 +42,9 @@ class SaveFileManager:
         
         # ------------------------------------------ GUI Initialization ------------------------------------------
         self.FRAME_top = ttk.Frame(self.root)
-        self.context_menu = ContextMenu(self.root, self.data, self)
-        self.searchBar = SearchBar(self.root, self.data, self)
-        self.searchBar.searchVar.trace_add("write", self.updateLIST_games)
+        self.ELEM_contextMenu = ContextMenu(self.root, self.data, self.utility, self)
+        self.ELEM_searchBar = SearchBar(self.root, self.data, self.utility, self)
+        self.ELEM_searchBar.searchVar.trace_add("write", self.updateLIST_games)
         self.FRAME_top.pack(fill=ttk.X, padx=10, pady=10)
         
         self.FRAME_main = ttk.Panedwindow(self.root, orient=HORIZONTAL)
@@ -53,13 +55,12 @@ class SaveFileManager:
         self.__setupGUI_FrameRight()
         
         self.populateLIST_games()
-        self.footer = Footer(self.root, self.data, self)
-        self.details = Details(self.root, self.data, self)
-        self.sideBar = SideBar(self.root, self.data, self)
+        self.ELEM_footer = Footer(self.root, self.data, self.utility, self)
+        self.ELEM_details = Details(self.root, self.data, self.utility, self)
+        self.ELEM_sideBar = SideBar(self.root, self.data, self.utility, self)
         
-        
-        util.adjustTreeviewHeight(self.LIST_savePathContent)
-        util.adjustTreeviewHeight(self.LIST_backupContents)
+        self.utility.adjustTreeviewHeight(self.LIST_savePathContent)
+        self.utility.adjustTreeviewHeight(self.LIST_backupContents)
             
     def onGameSelect(self, event):
         selected = self.LIST_games.selection()
@@ -94,7 +95,7 @@ class SaveFileManager:
         self.updateLIST_games()
 
     def updateLIST_games(self, *args):
-        searchTerm = self.searchBar.searchVar.get().lower()
+        searchTerm = self.ELEM_searchBar.searchVar.get().lower()
         for item in self.LIST_games.get_children():
             self.LIST_games.delete(item)
 
@@ -127,7 +128,7 @@ class SaveFileManager:
                 self.LIST_savePathContent.insert("", "end", values=(file, modifiedTime))
 
         # Adjust the height of the Treeview
-        util.adjustTreeviewHeight(self.LIST_savePathContent)
+        self.utility.adjustTreeviewHeight(self.LIST_savePathContent)
 
 
     def updateLIST_backupContents(self):
@@ -135,7 +136,7 @@ class SaveFileManager:
             self.LIST_backupContents.delete(item)
 
         # Sanitize the selected game's name to ensure the folder name is valid
-        sanitizedGameName = util.sanitizeFolderName_fix(self.selectedGameToDisplayDetails)
+        sanitizedGameName = self.utility.sanitizeFolderName_fix(self.selectedGameToDisplayDetails)
         backupFolder = os.path.join(DataFolder.SAVEGAMES.value, sanitizedGameName)
         
         if os.path.exists(backupFolder):
@@ -144,11 +145,11 @@ class SaveFileManager:
                     self.LIST_backupContents.insert("", "end", text=file)
 
         # Adjust the height of the Treeview
-        util.adjustTreeviewHeight(self.LIST_backupContents)
+        self.utility.adjustTreeviewHeight(self.LIST_backupContents)
 
 
     def BackupCreate(self, isNamed=False):
-        sanitizedGameName = util.sanitizeFolderName_fix(self.selectedGameToDisplayDetails)
+        sanitizedGameName = self.utility.sanitizeFolderName_fix(self.selectedGameToDisplayDetails)
         
         savePath = self.data.DATA_JSONinstalledGames[self.selectedGameToDisplayDetails].get("pathSave", "")
         backupFolder = os.path.join(DataFolder.SAVEGAMES.value, sanitizedGameName)
@@ -159,7 +160,7 @@ class SaveFileManager:
         
         if isNamed:
             # Prompt the user for a custom name
-            zipName = NamedBackupDialog(self.root, self.data, targetPath=backupFolder).result
+            zipName = NamedBackupDialog(self.root, self.data, self.utility, targetPath=backupFolder).result
             if not zipName:  # If the user cancels or leaves it empty, return
                 return
         else:
@@ -195,7 +196,7 @@ class SaveFileManager:
         zipFile = self.LIST_backupContents.item(selected[0], "text")
         
         # Sanitize the selected game name for folder paths, but not for zip files
-        sanitizedGameName = util.sanitizeFolderName_fix(self.selectedGameToDisplayDetails)
+        sanitizedGameName = self.utility.sanitizeFolderName_fix(self.selectedGameToDisplayDetails)
         backupFolder = os.path.join(DataFolder.SAVEGAMES.value, sanitizedGameName)
         zipPath = os.path.join(backupFolder, zipFile)
 

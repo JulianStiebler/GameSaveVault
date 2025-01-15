@@ -15,13 +15,11 @@ import tkinter as tk
 from tkinter import messagebox
 import os
 
-from core.util import sanitizeFolderName_contains
-
-
 class NamedBackupDialog:
-    def __init__(self, parent, data, targetPath):
+    def __init__(self, parent, data, utility, targetPath):
         self.result = None  # To store the final result
         self.data = data
+        self.utility = utility
         self.targetPath = targetPath
         self.dialog = ttk.Toplevel(parent)
         self.dialog.title("Custom Backup Name")
@@ -74,7 +72,7 @@ class NamedBackupDialog:
         name = self.INP_name.get().strip()
 
         if name:  # If name is not empty, we check for invalid characters
-            if sanitizeFolderName_contains(name):
+            if self.utility.sanitizeFolderName_contains(name):
                 self.BTN_okay.config(state=DISABLED)  # Disable the OK button
                 if self.LBL_warning.winfo_ismapped() == 0:  # Check if the label is not already shown
                     self.LBL_warning.pack(fill=X, pady=(0, 5))  # Show the warning label
