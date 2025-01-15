@@ -1,31 +1,42 @@
 """
-# Github Authors: https://github.com/JulianStiebler/
-# Github Contributors: https://github.com/JulianStiebler/
+GameSaveVault - A tool for managing and backing up game save files.
 
-# GitHub Repository: https://github.com/JulianStiebler/GameSaveVault 
-# Github License: MIT // https://github.com/JulianStiebler/GameSaveVault/blob/main/LICENSE
+Copyright (C) 2025 Julian Stiebler (stblr)
 
-# Last Edited: 11.01.2025
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+GitHub Repository: https://github.com/JulianStiebler/GameSaveVault
+GitHub License: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+GitHub License File: https://github.com/JulianStiebler/GameSaveVault/blob/main/LICENSE
+
+Last Edited: 11.01.2025
 """
 
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 import os
-import shutil
 from datetime import datetime
-from tkinter import filedialog, messagebox
+from tkinter import filedialog
 
-from core import DataManager, Utility, BackupManager
+from core import DataManager, BackupManager
 from core.model import PathInfo
-from core.enums import AppConfig, DataFile, DataFolder
-import core.util as util
-
+from core.enums import AppConfig, DataFolder
 from gui.elements import Footer, Details, SearchBar, SideBar, ContextMenu
-from gui.screen.dialog import NamedBackupDialog, AddMissingGameDialog
 
 data = DataManager()
 
-class SaveFileManager:
+class GameSaveVault:
     def __init__(self, root, data):
         # ------------------------------------------ Application Init ------------------------------------------
         self.root = root
@@ -217,5 +228,5 @@ class SaveFileManager:
             
 if __name__ == "__main__":
     root = ttk.Window(themename="darkly")
-    SaveFileManager(root)
+    GameSaveVault(root)
     root.mainloop()
