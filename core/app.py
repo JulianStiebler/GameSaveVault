@@ -39,71 +39,43 @@ class SaveFileManager:
         
         # ------------------------------------------ Runtime Variables ------------------------------------------
         self.selectedGameToDisplayDetails = None
+        self.searchVar = ttk.StringVar()
         
         # ------------------------------------------ GUI Initialization ------------------------------------------
         self.FRAME_top = ttk.Frame(self.root)
         self.ELEM_contextMenu = ContextMenu(self.root, self.data, self.utility, self)
         self.ELEM_searchBar = SearchBar(self.root, self.data, self.utility, self)
-        self.ELEM_searchBar.searchVar.trace_add("write", self.updateLIST_games)
         self.FRAME_top.pack(fill=ttk.X, padx=10, pady=10)
         
         self.FRAME_main = ttk.Panedwindow(self.root, orient=HORIZONTAL)
         self.FRAME_main.pack(fill=BOTH, expand=True, padx=10, pady=10)
-        
+        self.FRAME_left = ttk.Frame(self.FRAME_main)
+        self.FRAME_main.add(self.FRAME_left, weight=1)
+        self.ELEM_sideBar = SideBar(self.root, self.data, self.utility, self)
 
-        self.__setupGUI_FrameLeft()
+
         self.__setupGUI_FrameRight()
         
-        self.populateLIST_games()
+        self.ELEM_sideBar.listGames.populateLIST_games()
         self.ELEM_footer = Footer(self.root, self.data, self.utility, self)
         self.ELEM_details = Details(self.root, self.data, self.utility, self)
-        self.ELEM_sideBar = SideBar(self.root, self.data, self.utility, self)
-        
+
+        self.searchVar.trace_add("write", self.ELEM_sideBar.listGames.updateLIST_games)
         self.utility.adjustTreeviewHeight(self.LIST_savePathContent)
         self.utility.adjustTreeviewHeight(self.LIST_backupContents)
             
     def onGameSelect(self, event):
-        selected = self.LIST_games.selection()
+        selected = self.ELEM_sideBar.listGames.LIST_games.selection()
         if not selected:
             return
 
-        gameName = self.LIST_games.item(selected[0], "text")[2:].strip()
+        gameName = self.ELEM_sideBar.listGames.LIST_games.item(selected[0], "text")[2:].strip()
         self.LBL_gameTitle.config(text=gameName)
         self.selectedGameToDisplayDetails = gameName
 
         self.updatePaths()
         self.updateSaveFolderContents()
         self.updateLIST_backupContents()
-        
-    def populateLIST_games(self):
-        self.gameList = []
-        installedGameNames = {game.lower() for game in self.data.DATA_JSONinstalledGames.keys()}  # Get all installed game names (case-insensitive)
-
-        # Add installed games first, sorted alphabetically
-        installedGames = sorted(
-            [(game, True) for game in self.data.DATA_JSONinstalledGames.keys()],
-            key=lambda x: x[0].lower()  # Sorting by the game name (case-insensitive)
-        )
-        self.gameList.extend(installedGames)
-
-        # Add known games only if not already in installed games, sorted alphabetically
-        knownGames = sorted(
-            [(game, False) for game, path in self.data.DATA_JSONknownGamePaths.items() if game.lower() not in installedGameNames],
-            key=lambda x: x[0].lower()  # Sorting by the game name (case-insensitive)
-        )
-        self.gameList.extend(knownGames)
-        self.updateLIST_games()
-
-    def updateLIST_games(self, *args):
-        searchTerm = self.ELEM_searchBar.searchVar.get().lower()
-        for item in self.LIST_games.get_children():
-            self.LIST_games.delete(item)
-
-        sortedGames = sorted(self.gameList, key=lambda x: not x[1])
-        for game, is_installed in sortedGames:
-            if searchTerm in game.lower():
-                status = "\u2713" if is_installed else "\u2717"
-                self.LIST_games.insert("", "end", text=f"{status} {game}")
 
     def updatePaths(self):
         installPath = self.data.DATA_JSONinstalledGames.get(self.selectedGameToDisplayDetails, {}).get("pathInstall", None)
@@ -234,36 +206,6 @@ class SaveFileManager:
             self.updateSaveFolderContents()
             self.data.saveJSON(self.data.PATH_JSONinstalledGames, self.data.DATA_JSONinstalledGames)
             
-    def __addMissingGame(self):
-        dialog = AddMissingGameDialog(self.root, self.data)
-        result = dialog.result
-
-        if not result:
-            return
-
-        gameName = result["name"]
-        savePath = result.get("savePath")
-        installPath = result.get("installPath")
-        isInstalled = result["isInstalled"]
-
-        # Update customGames.json
-        customGames = self.data.loadJSON(DataFile.CUSTOM_GAMES.value) if os.path.exists(DataFile.CUSTOM_GAMES.value) else {"CustomPaths": {}}
-        customGames["CustomPaths"][gameName] = savePath or ""
-        self.data.saveJSON(DataFile.CUSTOM_GAMES.value, customGames)
-
-        # Update installedGames.json if the game is installed
-        if isInstalled:
-            installedGames = self.data.loadJSON(DataFile.INSTALLED_GAMES.value) if os.path.exists(DataFile.INSTALLED_GAMES.value) else {}
-            installedGames[gameName] = {
-                "platform": "Custom",
-                **({"pathInstall": installPath} if installPath else {}),
-                **({"pathSave": savePath} if savePath else {})
-            }
-            self.data.saveJSON(DataFile.INSTALLED_GAMES.value, installedGames)
-
-        messagebox.showinfo("Success", f"Game '{gameName}' added successfully!")
-        self.data.initApplication()
-        self.populateLIST_games()
         
     def __setupGUI_FrameRight(self):
         # Right panel for details
@@ -334,31 +276,6 @@ class SaveFileManager:
         self.PROG_backupProgress.pack(fill=X, padx=5, pady=5)
 
         self.FRAME_backupButtons.pack(fill=X, pady=5)
-    
-    def __setupGUI_FrameLeft(self):
-        # Left panel for game list
-        self.FRAME_left = ttk.Frame(self.FRAME_main)
-        self.FRAME_main.add(self.FRAME_left, weight=1)
-
-                # Treeview for the game list
-        self.LIST_games = ttk.Treeview(self.FRAME_left, show='tree', selectmode='browse', bootstyle="info")
-        self.LIST_games.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)  # Grid for Treeview to expand
-        self.LIST_games.bind("<<TreeviewSelect>>", self.onGameSelect)
-
-        # Scrollbar for the Treeview
-        scrollbar = ttk.Scrollbar(self.FRAME_left, orient=VERTICAL, command=self.LIST_games.yview, bootstyle="danger")
-        scrollbar.grid(row=0, column=1, sticky="ns")  # Place scrollbar in the same row as Treeview, stretching vertically
-
-        # Configure grid to make the Treeview expand properly
-        self.FRAME_left.grid_rowconfigure(0, weight=1)  # Row 0 (Treeview) expands to fill the space
-        self.FRAME_left.grid_columnconfigure(0, weight=1)  # Column 0 (Treeview) expands to fill the space
-
-        # Configure the Treeview to use the scrollbar
-        self.LIST_games.configure(yscrollcommand=scrollbar.set)
-
-        # Add the "Add Missing Game" button at the bottom
-        self.BTN_addMissingGame = ttk.Button(self.FRAME_left, text="Add Missing Game", bootstyle="info", command=self.__addMissingGame)
-        self.BTN_addMissingGame.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky='ew')  # Button at the bottom
         
             
 if __name__ == "__main__":
