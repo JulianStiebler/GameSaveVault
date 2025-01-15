@@ -30,18 +30,22 @@ class DetectSystem:
         self.data.DATA_GEN_library = self.detectGeneral.GetSaveFolders()
         self.saveInstalledGames(self.data.DATA_GEN_library, "General")
 
-    def saveInstalledGames(self, new_games: Dict[str, dict], platform: str = "General"):
+    def saveInstalledGames(self, new_games: Dict[str, dict], platform):
         for game_name, game_data in new_games.items():
             # Convert paths to relative
             if 'pathInstall' in game_data:
                 game_data['pathInstall'] = PathInfo.to_relative(game_data['pathInstall'])
             if 'pathSave' in game_data:
                 game_data['pathSave'] = PathInfo.to_relative(game_data['pathSave'])
+            if 'platform' in new_games[game_name]:
+                game_data['platform'] = new_games[game_name]['platform']
+            else:
+                game_data['platform'] = platform
+
             
             # Update or create entry
             if game_name in self.installedGames:
-                # Keep existing platform if it's Steam or Epic
-                game_data['platform'] = platform
+                # Only write platform if it's missing (don't overwrite if it's already set)
                 
                 # Preserve existing save_path if present
                 if 'pathSave' in self.installedGames[game_name]:
@@ -50,8 +54,7 @@ class DetectSystem:
                 # Update existing entry
                 self.installedGames[game_name].update(game_data)
             else:
-                # Create new entry
-                game_data['platform'] = platform
+                # Create new entry and assign the platform
                 self.installedGames[game_name] = game_data
 
         # Write updated data to file

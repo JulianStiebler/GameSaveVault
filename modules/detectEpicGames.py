@@ -72,16 +72,11 @@ class DetectGamesEpic:
 
                     # Add or update game entry with Epic-specific details
                     if gameName in installedGames:
-                        # Update platform only if it's not set or empty
-                        if installedGames[gameName].get('platform', "") in ["General", ""]:
-                            installedGames[gameName]['platform'] = "Epic"
-
                         installedGames[gameName].update({
                             "pathInstall": os.path.normpath(installLocation),
                         })
                     else:
                         installedGames[gameName] = {
-                            "platform": "Epic",
                             "pathInstall": os.path.normpath(installLocation),
                         }
 

@@ -123,8 +123,6 @@ class DetectGamesSteam:
 
                             # If game already exists, update only non-existing fields, preserving pathSave if exists
                             if gameName in installedGames:
-                                if installedGames[gameName].get('platform', "") in ["General", ""]:
-                                    installedGames[gameName]['platform'] = "Steam"
                                 if 'pathSave' in installedGames[gameName]:
                                     gameDetails['pathSave'] = installedGames[gameName]['pathSave']
                                 # Update only fields that are not present

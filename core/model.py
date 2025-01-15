@@ -11,7 +11,7 @@ import json
 class GameMetadata:
     name: str
     appid: Optional[str] = None
-    platform: Platform = Platform.GENERAL
+    platform: Platform = None
     install_dir: Optional[str] = None
     header_image: Optional[str] = None
     manual_url: Optional[str] = None
@@ -182,6 +182,6 @@ class GameResource:
 class AppState:
     """Application state tracking"""
     selected_game: Optional[str] = None
-    current_platform: Platform = Platform.GENERAL
+    current_platform: Platform = None
     has_unsaved_changes: bool = False
     last_backup_path: Optional[Path] = None

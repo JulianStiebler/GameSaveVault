@@ -14,9 +14,9 @@ class Footer:
         self.FRAME_footer.pack(side=BOTTOM, fill=X)
         
         links = {
-            "GitHub": AppConfigGithub.GITHUB_URL_ORIGIN,
-            "Feature Request": AppConfigGithub.GITHUB_URL_FEATUREREQUEST,
-            "Bug Report": AppConfigGithub.GITHUB_URL_BUGREPORT
+            "GitHub": AppConfigGithub.GITHUB_URL_ORIGIN.value,
+            "Feature Request": AppConfigGithub.GITHUB_URL_FEATUREREQUEST.value,
+            "Bug Report": AppConfigGithub.GITHUB_URL_BUGREPORT.value
         }
         
         for name, url in links.items():
@@ -27,5 +27,5 @@ class Footer:
             self.LBL_FooterLink.bind("<Leave>", lambda e, label=self.LBL_FooterLink: label.config(foreground="#FFFFFF"))
             
         # Create non-clickable version label on the bottom right
-        LBL_Version = ttk.Label(self.FRAME_footer, text=AppConfigGithub.GITHUB_VERSION, font=("Arial", 10), anchor="e", bootstyle="light")
+        LBL_Version = ttk.Label(self.FRAME_footer, text=AppConfigGithub.GITHUB_VERSION.value, font=("Arial", 10), anchor="e", bootstyle="light")
         LBL_Version.pack(side=RIGHT, padx=10)
