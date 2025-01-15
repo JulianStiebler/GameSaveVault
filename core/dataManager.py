@@ -27,8 +27,8 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from .model import PathInfo
-from .enums import DataFile, DataFolder
+from .model import PathInfo, GameLibrary, GameMetadata, Game, GamePath
+from .enums import DataFile, DataFolder, PathType
 from .util import Utility
 from .detect import DetectSystem
 
@@ -55,7 +55,11 @@ class DataManager:
 
     def initApplication(self):
         self.DATA_JSONinstalledGames = self.loadJSON(DataFile.INSTALLED_GAMES.value, convertRelativePaths=True)
+        self.DATA_JSONinstalledGamesNew = self.loadJSONNew(DataFile.INSTALLED_GAMES.value)
+        
         self.DATA_JSONknownGamePaths = self.loadJSON(DataFile.KNOWN_PATHS.value)
+        self.DATA_JSONknownGamePathsNew = self.loadJSONNew(DataFile.KNOWN_PATHS.value)
+        
         self.DATA_JSONcustomGames = self.loadJSON(DataFile.CUSTOM_GAMES.value)
 
     @staticmethod
@@ -93,6 +97,61 @@ class DataManager:
         except Exception as e:
             print(f"Unexpected error reading file {filePath}: {e}")
             return {}
+        
+    # Rework
+    @staticmethod
+    def loadJSONNew(filePath):
+        """
+        Load JSON data from a file and convert it into the appropriate models.
+
+        :param filePath: Path to the JSON file.
+        :return: An instance of GameLibrary or the raw data if conversion fails.
+        """
+        try:
+            # Convert Path object to string if needed
+            file_path_str = str(filePath) if isinstance(filePath, Path) else filePath
+
+            with open(file_path_str, 'r') as f:
+                raw_data = json.load(f)
+
+            game_library = GameLibrary()
+
+            for game_name, game_data in raw_data.items():
+                # Extract metadata
+                metadata = GameMetadata(
+                    name=game_name,
+                    appid=game_data.get("appid"),
+                    platform=game_data.get("platform"),
+                    install_dir=game_data.get("pathInstall"),
+                    header_image=game_data.get("headerImage"),
+                    manual_url=game_data.get("manualURL"),
+                    guide_url=game_data.get("guideURL"),
+                    wiki_url=game_data.get("wikiURL"),
+                    version=game_data.get("version"),
+                    last_updated=game_data.get("lastUpdated", datetime.now())
+                )
+
+                # Extract paths
+                paths = {
+                    PathType[path_key]: GamePath(path=path_value, type=PathType[path_key])
+                    for path_key, path_value in game_data.get("paths", {}).items()
+                }
+
+                # Create Game object and add to library
+                game = Game(metadata=metadata, paths=paths)
+                game_library.add_game(game)
+
+            return game_library
+        
+        except FileNotFoundError:
+            print(f"File not found: {filePath}")
+            return GameLibrary()  # Return an empty library if file not found
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON from file {filePath}: {e}")
+            return GameLibrary()  # Return an empty library if JSON invalid
+        except Exception as e:
+            print(f"Unexpected error reading file {filePath}: {e}")
+            return GameLibrary()  # Return an empty library on any other error
         
     @staticmethod
     def saveJSON(filePath, data):

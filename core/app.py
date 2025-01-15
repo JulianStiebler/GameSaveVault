@@ -49,7 +49,7 @@ class GameSaveVault:
     
         
         # ------------------------------------------ Runtime Variables ------------------------------------------
-        self.selectedGameToDisplayDetails = None
+        self.selectedGameToDisplay = None
         self.searchVar = ttk.StringVar()
         
         # ------------------------------------------ GUI Initialization ------------------------------------------
@@ -80,19 +80,24 @@ class GameSaveVault:
         self.root.update_idletasks()
             
     def onGameSelect(self, event):
-        selected = self.ELEM_sideBar.listGames.listGames.selection()
-        if not selected:
-            return
+        _, _, self.selectedGameToDisplay = self.getSelectedGame()
 
-        gameName = self.ELEM_sideBar.listGames.listGames.item(selected[0], "text")[2:].strip()
-        self.ELEM_details.LBL_gameTitle.config(text=gameName)
-        self.selectedGameToDisplayDetails = gameName
-
+        self.ELEM_details.LBL_gameTitle.config(text=self.selectedGameToDisplay.metadata.name)
         self.ELEM_details.updateDetailsView()
         self.ELEM_details.updateLIST_fileExplorer()
         self.ELEM_details.updateLIST_backupContents()
         
-            
+    def getSelectedGame(self):
+        listObj = self.ELEM_sideBar.listGames.listGames.selection()
+        rawName = self.ELEM_sideBar.listGames.listGames.item(listObj[0], "text")[2:].strip()
+        selectedGameObj = self.data.DATA_JSONknownGamePathsNew.games.get(rawName)
+        # If not found, then check DATA_JSONinstalledGamesNew
+        if not selectedGameObj:
+            selectedGameObj = self.data.DATA_JSONinstalledGamesNew.games.get(rawName)
+        
+        return listObj, rawName, selectedGameObj
+        
+    
 if __name__ == "__main__":
     root = ttk.Window(themename="darkly")
     GameSaveVault(root)
