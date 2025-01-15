@@ -51,7 +51,7 @@ class BackupManager:
         
         if isNamed:
             # Prompt the user for a custom name
-            zipName = NamedBackupDialog(self.root, self.data, self.data.utility, targetPath=backupFolder).result
+            zipName = NamedBackupDialog(self.root, self.data, backupFolder).result
             if not zipName:  # If the user cancels or leaves it empty, return
                 return
         else:
@@ -60,36 +60,23 @@ class BackupManager:
             
         zipPath = os.path.join(backupFolder, zipName)
         
-        # Show and reset progress bar
-        self.app.PROG_backupProgress.pack(fill=X, padx=5, pady=5)
-        self.app.PROG_backupProgress['value'] = 0
-        
-        def __updateProgress(value):
-            self.app.PROG_backupProgress['value'] = value
-            self.root.update_idletasks()
-        
         try:
-            self.zipFolder(savePath, zipPath, __updateProgress)
+            self.zipFolder(savePath, zipPath, self.app.updateProgress)
         except Exception as e:
             messagebox.showerror("Error", f"Failed to create backup: {str(e)}")
-        finally:
-            # Hide progress bar
-            self.app.PROG_backupProgress.pack_forget()
         
         self.app.updateLIST_backupContents()
         messagebox.showinfo("Success", f"Backup '{zipName}' created successfully!")
 
-    def apply(self):
-        selected = self.app.LIST_backupContents.selection()
-        if not selected:
+    def apply(self, selectedZip):
+        if not selectedZip:
+            messagebox.showerror("Error", "No backup selected.")
             return
-
-        zipFile = self.app.LIST_backupContents.item(selected[0], "text")
         
         # Sanitize the selected game name for folder paths, but not for zip files
         sanitizedGameName = self.data.utility.sanitizeFolderName_fix(self.app.selectedGameToDisplayDetails)
         backupFolder = os.path.join(DataFolder.SAVEGAMES.value, sanitizedGameName)
-        zipPath = os.path.join(backupFolder, zipFile)
+        zipPath = os.path.join(backupFolder, selectedZip)
 
         savePath = self.data.DATA_JSONinstalledGames[self.app.selectedGameToDisplayDetails].get("pathSave", "")
         if os.path.exists(savePath):
@@ -98,7 +85,7 @@ class BackupManager:
         os.makedirs(savePath, exist_ok=True)
         self.extractZIPContent(zipPath, savePath)
         self.app.updateLIST_backupContents()
-        messagebox.showinfo("Success", f"Selected backup '{zipFile}' applied successfully!")
+        messagebox.showinfo("Success", f"Selected backup '{selectedZip}' applied successfully!")
         
 
     @staticmethod

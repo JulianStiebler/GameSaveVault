@@ -26,9 +26,9 @@ Last Edited: 11.01.2025
 import json
 from typing import Dict
 
-from core.detect import DetectGamesEpic, DetectGamesGeneral, DetectGamesSteam
 from core.enums import DataFile
 from core.model import PathInfo
+from core.detect import DetectGamesEpic, DetectGamesGeneral, DetectGamesSteam
 
 class DetectSystem:
     def __init__(self, dataManager):

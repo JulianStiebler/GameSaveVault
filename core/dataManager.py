@@ -29,8 +29,8 @@ from pathlib import Path
 
 from .model import PathInfo
 from .enums import DataFile, DataFolder
-from .detect import DetectSystem
 from .util import Utility
+from .detect import DetectSystem
 
 class DataManager:
     def __init__(self):
