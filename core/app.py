@@ -21,22 +21,40 @@ from core.enums import AppConfig, DataFile, DataFolder
 import core.util as util
 
 from gui.elements import Footer, Details, SearchBar, SideBar
-from gui.elements.inner import ListBackup, ListFileExplorer
 from gui.screen.dialog import NamedBackupDialog, AddMissingGameDialog
 
 data = DataManager()
 
 class SaveFileManager:
     def __init__(self, root, data):
+        # ------------------------------------------ Application Init ------------------------------------------
         self.root = root
         self.data = data
         self.root.title(AppConfig.TITLE.value)
         self.root.geometry(AppConfig.WINDOW_GEOMETRY.value)
         self.root.minsize(AppConfig.WINDOW_SIZE_X.value, AppConfig.WINDOW_SIZE_Y.value)
         self.style = ttk.Style(AppConfig.THEME.value)
-        self.selectedGameToDisplayDetails = None
         
-        self.__setupGUI_searchBar()
+        # ------------------------------------------ Runtime Variables ------------------------------------------
+        self.selectedGameToDisplayDetails = None
+        self.searchVar = ttk.StringVar()
+        self.searchVar.trace_add("write", self.updateLIST_games)
+        
+        
+        # ------------------------------------------ GUI Initialization ------------------------------------------
+        self.menu_bar = ttk.Menu(self.root)
+
+        # Program menu
+        self.program_menu = ttk.Menu(self.menu_bar, tearoff=0)
+        self.program_menu.add_command(label="Exit", command=self.root.quit)  # Placeholder
+        self.menu_bar.add_cascade(label="Program", menu=self.program_menu)
+
+        # Add the menu bar to the application
+        self.root.config(menu=self.menu_bar)
+        self.FRAME_top = ttk.Frame(self.root)
+        self.FRAME_top.pack(fill=ttk.X, padx=10, pady=10)
+        
+        self.searchBar = SearchBar(self.root, self.data, self)
         self.FRAME_main = ttk.Panedwindow(self.root, orient=HORIZONTAL)
         self.FRAME_main.pack(fill=BOTH, expand=True, padx=10, pady=10)
         
@@ -45,7 +63,10 @@ class SaveFileManager:
         self.__setupGUI_FrameRight()
         
         self.populateLIST_games()
-        self.footer = Footer(self.root, self.data)
+        self.footer = Footer(self.root, self.data, self)
+        self.details = Details(self.root, self.data, self)
+        self.sideBar = SideBar(self.root, self.data, self)
+        
         
         util.adjustTreeviewHeight(self.LIST_savePathContent)
         util.adjustTreeviewHeight(self.LIST_backupContents)
@@ -252,12 +273,6 @@ class SaveFileManager:
         messagebox.showinfo("Success", f"Game '{gameName}' added successfully!")
         self.data.initApplication()
         self.populateLIST_games()
-        
-    def __setupGUI_searchBar(self):
-        self.searchVar = ttk.StringVar()
-        self.searchVar.trace_add("write", self.updateLIST_games)
-        INP_SearchBar = ttk.Entry(self.root, textvariable=self.searchVar, font=("Arial", 14))
-        INP_SearchBar.pack(fill=X, padx=10, pady=5)
         
     def __setupGUI_FrameRight(self):
         # Right panel for details

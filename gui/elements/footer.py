@@ -5,9 +5,10 @@ from core.enums import AppConfigGithub
 
 
 class Footer:
-    def __init__(self, root, data):
+    def __init__(self, root, data, app):
         self.root = root
-        self.data = data 
+        self.data = data
+        self.app = app
         
         self.FRAME_footer = ttk.Frame(self.root)
         self.FRAME_footer.pack(side=BOTTOM, fill=X)
