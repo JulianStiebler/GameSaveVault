@@ -8,11 +8,13 @@
 # Last Edited: 11.01.2025
 """
 
-from core.app import SaveFileManager
-from gui.screen.splash import SplashScreen
-from core.dataManager import DataManager
 import ttkbootstrap as ttk
+
+from core.app import SaveFileManager
+from core import DataManager
 from core.enums import AppConfig
+
+from gui.screen.splash import SplashScreen
 
 def initGameSaveVault(splash, steps, root, data):
     def step(index):

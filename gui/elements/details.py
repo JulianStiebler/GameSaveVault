@@ -1,3 +1,3 @@
-class BackupManager:
+class Details:
     def __init__(self):
         pass

@@ -1,14 +1,13 @@
 import os
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import BOTTOM, LEFT, RIGHT, X
-from core.dataManager import DataManager
 from core.enums import AppConfigGithub
 
 
 class Footer:
     def __init__(self, root, data):
         self.root = root
-        self.data = data if data else DataManager()
+        self.data = data 
         
         self.FRAME_footer = ttk.Frame(self.root)
         self.FRAME_footer.pack(side=BOTTOM, fill=X)

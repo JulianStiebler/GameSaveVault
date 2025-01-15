@@ -10,10 +10,11 @@
 
 import json
 from datetime import datetime
-from modules.detectSystem import DetectSystem
+from pathlib import Path
+
+from core.detect import DetectSystem
 from core.model import PathInfo
 from core.enums import DataFile, DataFolder
-from pathlib import Path
 
 class DataManager:
     def __init__(self):

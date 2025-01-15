@@ -14,21 +14,22 @@ import os
 import shutil
 from datetime import datetime
 from tkinter import filedialog, messagebox
-from tkinter.messagebox import showinfo
 
-from core.dataManager import DataManager
+from core import DataManager
 from core.model import PathInfo
-import core.util as util
-from gui import Footer
-from gui.screen.dialog import NamedBackupDialog, AddMissingGameDialog
 from core.enums import AppConfig, DataFile, DataFolder
+import core.util as util
+
+from gui.elements import Footer, Details, SearchBar, SideBar
+from gui.elements.inner import ListBackup, ListFileExplorer
+from gui.screen.dialog import NamedBackupDialog, AddMissingGameDialog
 
 data = DataManager()
 
 class SaveFileManager:
     def __init__(self, root, data):
         self.root = root
-        self.data = data if data else DataManager()
+        self.data = data
         self.root.title(AppConfig.TITLE.value)
         self.root.geometry(AppConfig.WINDOW_GEOMETRY.value)
         self.root.minsize(AppConfig.WINDOW_SIZE_X.value, AppConfig.WINDOW_SIZE_Y.value)
