@@ -1,14 +1,13 @@
 import os
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import BOTTOM, LEFT, RIGHT, X
-from core.enums import AppConfigGithub
+from core.enums import AppConfigGithub, AppConfig
 
 
 class Footer:
-    def __init__(self, root, data, utility, app):
+    def __init__(self, root, data, app):
         self.root = root
         self.data = data
-        self.utility = utility
         self.app = app
         
         self.FRAME_footer = ttk.Frame(self.root)
@@ -28,5 +27,5 @@ class Footer:
             self.LBL_FooterLink.bind("<Leave>", lambda e, label=self.LBL_FooterLink: label.config(foreground="#FFFFFF"))
             
         # Create non-clickable version label on the bottom right
-        LBL_Version = ttk.Label(self.FRAME_footer, text=AppConfigGithub.GITHUB_VERSION.value, font=("Arial", 10), anchor="e", bootstyle="light")
+        LBL_Version = ttk.Label(self.FRAME_footer, text=AppConfig.VERSION.value, font=("Arial", 10), anchor="e", bootstyle="light")
         LBL_Version.pack(side=RIGHT, padx=10)

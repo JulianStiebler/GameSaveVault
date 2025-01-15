@@ -12,6 +12,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
+from .util import Utility
 from core.detect import DetectSystem
 from core.model import PathInfo
 from core.enums import DataFile, DataFolder
@@ -35,6 +36,7 @@ class DataManager:
         Path(DataFolder.SAVEGAMES.value).mkdir(exist_ok=True)
 
         self.detectSystem = DetectSystem(self)
+        self.utility = Utility()
 
     def initApplication(self):
         self.DATA_JSONinstalledGames = self.loadJSON(DataFile.INSTALLED_GAMES.value, convertRelativePaths=True)

@@ -30,12 +30,12 @@ class SaveFileManager:
         # ------------------------------------------ Application Init ------------------------------------------
         self.root = root
         self.data = data
-        self.utility = Utility(data)
-        self.backupManager = BackupManager(self.root, self.data, self.utility, self)
-        self.root.title(AppConfig.TITLE.value)
+        self.root.title(AppConfig.WINDOW_TITLE.value)
         self.root.geometry(AppConfig.WINDOW_GEOMETRY.value)
         self.root.minsize(AppConfig.WINDOW_SIZE_X.value, AppConfig.WINDOW_SIZE_Y.value)
-        self.style = ttk.Style(AppConfig.THEME.value)
+        self.style = ttk.Style(AppConfig.WINDOW_THEME.value)
+    
+        self.backupManager = BackupManager(self.root, self.data, self)
         
         # ------------------------------------------ Runtime Variables ------------------------------------------
         self.selectedGameToDisplayDetails = None
@@ -43,33 +43,32 @@ class SaveFileManager:
         
         # ------------------------------------------ GUI Initialization ------------------------------------------
         self.FRAME_top = ttk.Frame(self.root)
-        self.ELEM_contextMenu = ContextMenu(self.root, self.data, self.utility, self)
-        self.ELEM_searchBar = SearchBar(self.root, self.data, self.utility, self)
+        self.ELEM_contextMenu = ContextMenu(self.root, self.data, self)
+        self.ELEM_searchBar = SearchBar(self.root, self.data, self)
         self.FRAME_top.pack(fill=ttk.X, padx=10, pady=10)
         
         self.FRAME_main = ttk.Panedwindow(self.root, orient=HORIZONTAL)
         self.FRAME_main.pack(fill=BOTH, expand=True, padx=10, pady=10)
         self.FRAME_left = ttk.Frame(self.FRAME_main)
         self.FRAME_main.add(self.FRAME_left, weight=1)
-        self.ELEM_sideBar = SideBar(self.root, self.data, self.utility, self)
-
+        self.ELEM_sideBar = SideBar(self.root, self.data, self)
+        self.ELEM_sideBar.listGames.populate()
 
         self.__setupGUI_FrameRight()
+        self.ELEM_details = Details(self.root, self.data, self)
         
-        self.ELEM_sideBar.listGames.populateLIST_games()
-        self.ELEM_footer = Footer(self.root, self.data, self.utility, self)
-        self.ELEM_details = Details(self.root, self.data, self.utility, self)
+        self.ELEM_footer = Footer(self.root, self.data, self)
 
-        self.searchVar.trace_add("write", self.ELEM_sideBar.listGames.updateLIST_games)
-        self.utility.adjustTreeviewHeight(self.LIST_savePathContent)
-        self.utility.adjustTreeviewHeight(self.LIST_backupContents)
+        self.searchVar.trace_add("write", self.ELEM_sideBar.listGames.update)
+        self.data.utility.adjustTreeviewHeight(self.LIST_savePathContent)
+        self.data.utility.adjustTreeviewHeight(self.LIST_backupContents)
             
     def onGameSelect(self, event):
-        selected = self.ELEM_sideBar.listGames.LIST_games.selection()
+        selected = self.ELEM_sideBar.listGames.listGames.selection()
         if not selected:
             return
 
-        gameName = self.ELEM_sideBar.listGames.LIST_games.item(selected[0], "text")[2:].strip()
+        gameName = self.ELEM_sideBar.listGames.listGames.item(selected[0], "text")[2:].strip()
         self.LBL_gameTitle.config(text=gameName)
         self.selectedGameToDisplayDetails = gameName
 
@@ -100,7 +99,7 @@ class SaveFileManager:
                 self.LIST_savePathContent.insert("", "end", values=(file, modifiedTime))
 
         # Adjust the height of the Treeview
-        self.utility.adjustTreeviewHeight(self.LIST_savePathContent)
+        self.data.utility.adjustTreeviewHeight(self.LIST_savePathContent)
 
 
     def updateLIST_backupContents(self):
@@ -108,7 +107,7 @@ class SaveFileManager:
             self.LIST_backupContents.delete(item)
 
         # Sanitize the selected game's name to ensure the folder name is valid
-        sanitizedGameName = self.utility.sanitizeFolderName_fix(self.selectedGameToDisplayDetails)
+        sanitizedGameName = self.data.utility.sanitizeFolderName_fix(self.selectedGameToDisplayDetails)
         backupFolder = os.path.join(DataFolder.SAVEGAMES.value, sanitizedGameName)
         
         if os.path.exists(backupFolder):
@@ -117,79 +116,17 @@ class SaveFileManager:
                     self.LIST_backupContents.insert("", "end", text=file)
 
         # Adjust the height of the Treeview
-        self.utility.adjustTreeviewHeight(self.LIST_backupContents)
-
-
-    def BackupCreate(self, isNamed=False):
-        sanitizedGameName = self.utility.sanitizeFolderName_fix(self.selectedGameToDisplayDetails)
-        
-        savePath = self.data.DATA_JSONinstalledGames[self.selectedGameToDisplayDetails].get("pathSave", "")
-        backupFolder = os.path.join(DataFolder.SAVEGAMES.value, sanitizedGameName)
-        os.makedirs(backupFolder, exist_ok=True)
-        
-        if not savePath:
-            return
-        
-        if isNamed:
-            # Prompt the user for a custom name
-            zipName = NamedBackupDialog(self.root, self.data, self.utility, targetPath=backupFolder).result
-            if not zipName:  # If the user cancels or leaves it empty, return
-                return
-        else:
-            timestamp = self.data.getTimestamp()
-            zipName = f"{sanitizedGameName}-{timestamp}.zip"
-            
-        zipPath = os.path.join(backupFolder, zipName)
-        
-        # Show and reset progress bar
-        self.PROG_backupProgress.pack(fill=X, padx=5, pady=5)
-        self.PROG_backupProgress['value'] = 0
-        
-        def __updateProgress(value):
-            self.PROG_backupProgress['value'] = value
-            self.root.update_idletasks()
-        
-        try:
-            util.zipFolder(savePath, zipPath, __updateProgress)
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to create backup: {str(e)}")
-        finally:
-            # Hide progress bar
-            self.PROG_backupProgress.pack_forget()
-        
-        self.updateLIST_backupContents()
-        messagebox.showinfo("Success", f"Backup '{zipName}' created successfully!")
-
-    def BackupApply(self):
-        selected = self.LIST_backupContents.selection()
-        if not selected:
-            return
-
-        zipFile = self.LIST_backupContents.item(selected[0], "text")
-        
-        # Sanitize the selected game name for folder paths, but not for zip files
-        sanitizedGameName = self.utility.sanitizeFolderName_fix(self.selectedGameToDisplayDetails)
-        backupFolder = os.path.join(DataFolder.SAVEGAMES.value, sanitizedGameName)
-        zipPath = os.path.join(backupFolder, zipFile)
-
-        savePath = self.data.DATA_JSONinstalledGames[self.selectedGameToDisplayDetails].get("pathSave", "")
-        if os.path.exists(savePath):
-            shutil.rmtree(savePath)
-            
-        os.makedirs(savePath, exist_ok=True)
-        util.extractZIPContent(zipPath, savePath)
-        self.updateLIST_backupContents()
-        messagebox.showinfo("Success", f"Selected backup '{zipFile}' applied successfully!")
+        self.data.utility.adjustTreeviewHeight(self.LIST_backupContents)
 
     def __openInstallationFolder(self):
         installPath = self.data.DATA_JSONinstalledGames[self.selectedGameToDisplayDetails].get("pathInstall", None)
         if installPath:
-            util.openFolderInExplorer(installPath)
+            self.data.utility.openFolderInExplorer(installPath)
 
     def __openSaveFolder(self):
         savePath = self.data.DATA_JSONinstalledGames[self.selectedGameToDisplayDetails].get("pathSave", None)
         if savePath:
-            util.openFolderInExplorer(savePath)
+            self.data.utility.openFolderInExplorer(savePath)
             
     def __setInstallPath(self):
         folder = filedialog.askdirectory(title="Select Installation Folder")
@@ -266,12 +203,12 @@ class SaveFileManager:
 
         self.FRAME_backupButtons = ttk.Frame(self.FRAME_details)
 
-        self.BTN_createBackup = ttk.Button(self.FRAME_backupButtons, text="Create Timestamped Backup", bootstyle="primary", command=self.BackupCreate)
+        self.BTN_createBackup = ttk.Button(self.FRAME_backupButtons, text="Create Timestamped Backup", bootstyle="primary", command=self.backupManager.create)
         self.BTN_createBackup.pack(side=LEFT, expand=True, padx=5, pady=5)
         self.BTN_createBackup = ttk.Button(self.FRAME_backupButtons, text="Create Named Backup", bootstyle="primary", 
-                                   command=lambda: self.BackupCreate(isNamed=True))
+                                   command=lambda: self.backupManager.create(isNamed=True))
         self.BTN_createBackup.pack(side=LEFT, expand=True, padx=5, pady=5)
-        self.BTN_applyBackup = ttk.Button(self.FRAME_backupButtons, text="Apply Backup", bootstyle="danger", command=self.BackupApply)
+        self.BTN_applyBackup = ttk.Button(self.FRAME_backupButtons, text="Apply Backup", bootstyle="danger", command=self.backupManager.apply)
         self.BTN_applyBackup.pack(side=LEFT, expand=True, padx=5, pady=5)
         self.PROG_backupProgress.pack(fill=X, padx=5, pady=5)
 

@@ -3,11 +3,10 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 
 class SideBar:
-    def __init__(self, root, data, utility, app):
+    def __init__(self, root, data, app):
         self.root = root
         self.data = data
-        self.utility = utility
         self.app = app
 
         # Treeview for the game list
-        self.listGames = ListGames(self.root, self.data, self.utility, self.app)
+        self.listGames = ListGames(self.root, self.data, self.app)

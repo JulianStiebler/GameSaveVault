@@ -67,21 +67,25 @@ class PublicSources(Enum):
     """API endpoints used by the application"""
     STEAM_APPLIST = "https://api.steampowered.com/ISteamApps/GetAppList/v2/"
     
+class AppStates(Enum):
+    DEBUG = "DEBUG"
+    RELEASE = "RELEASE"
+    
 class AppConfig(Enum):
     """Application configuration constants"""
-    VERSION = "Version 0.9.9-alpha"
+    VERSION = "Version 1-beta"
     WINDOW_SIZE_X = 1000
     WINDOW_SIZE_Y = 800
     WINDOW_GEOMETRY = f"{WINDOW_SIZE_X}x{WINDOW_SIZE_Y}"
-    THEME = "darkly"
-    TITLE = "Game Save Vault"
+    WINDOW_THEME = "darkly"
+    WINDOW_TITLE = "Game Save Vault"
+    STATE = AppStates.DEBUG
     
 class AppConfigGithub(Enum):
-    GITHUB_VERSION = "Version 1-beta"
+    GITHUB_URL = "https://github.com/"
     GITHUB_ORIGIN = "JulianStiebler"
     GITHUB_PROJECT = "GameSaveVault"
     GITHUB_ASSIGNEES = f"{GITHUB_ORIGIN}"
-    GITHUB_URL = "https://github.com/"
     GITHUB_URL_ORIGIN = f"{GITHUB_URL}/{GITHUB_ORIGIN}/{GITHUB_PROJECT}/tree/main"
     GITHUB_URL_FEATUREREQUEST = f"{GITHUB_URL}/{GITHUB_ORIGIN}/{GITHUB_PROJECT}/issues/new?assignees={GITHUB_ASSIGNEES}&labels=feature&projects=&template=feature_request.md&title=Feature+request"
     GITHUB_URL_BUGREPORT = f"{GITHUB_URL}/{GITHUB_ORIGIN}/{GITHUB_PROJECT}/issues/new?assignees={GITHUB_ASSIGNEES}&labels=bug&projects=&template=bug_report.md&title=Bug+report"

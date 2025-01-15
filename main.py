@@ -37,7 +37,7 @@ def initGameSaveVault(splash, steps, root, data):
 if __name__ == "__main__":
     # Create main window first but don't show it
     dataObj = DataManager()
-    ROOT_main = ttk.Window(themename=AppConfig.THEME.value)
+    ROOT_main = ttk.Window(themename=AppConfig.WINDOW_THEME.value)
     ROOT_main.withdraw()
 
     # Create and show splash screen as a Toplevel window

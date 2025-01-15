@@ -2,10 +2,9 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 
 class ContextMenu:
-    def __init__(self, root, data, utility, app):
+    def __init__(self, root, data, app):
         self.root = root
         self.data = data
-        self.utility = utility
         self.app = app
         self.menu_bar = ttk.Menu(self.root)
         self._setup_menu()
@@ -15,6 +14,7 @@ class ContextMenu:
         # Program menu
         program_menu = ttk.Menu(self.menu_bar, tearoff=0)
         program_menu.add_command(label="Exit", command=self.root.quit)  # Placeholder Exit command
+        program_menu.add_command(label="Reload Epic Library", command=self.data.detectSystem.initEpicLibrary)
         self.menu_bar.add_cascade(label="Program", menu=program_menu)
         
         # Add more menus if needed

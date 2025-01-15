@@ -2,10 +2,9 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 
 class SearchBar:
-    def __init__(self, root, data, utility, app):
+    def __init__(self, root, data, app):
         self.root = root
         self.data = data
-        self.utility = utility
         self.app = app
         
         

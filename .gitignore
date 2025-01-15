@@ -6,4 +6,5 @@ data/customGames.json
 build/
 dist/
 data/dev.py
+data/appid.json
 

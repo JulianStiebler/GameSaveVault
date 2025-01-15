@@ -6,28 +6,27 @@ from gui.screen.dialog import AddMissingGameDialog
 from tkinter import messagebox
 
 class ListGames:
-    def __init__(self, root, data, utility, app):
+    def __init__(self, root, data, app):
         self.root = root
         self.data = data
-        self.utility = utility
         self.app = app
 
         self.BTN_addMissingGame = ttk.Button(self.app.FRAME_left, text="Add Missing Game", bootstyle="info", command=self.__addMissingGame)
         self.BTN_addMissingGame.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky='ew')  # Button at the bottom
-        self.LIST_games = ttk.Treeview(self.app.FRAME_left, show='tree', selectmode='browse', bootstyle="info")
-        self.LIST_games.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)  # Grid for Treeview to expand
-        self.LIST_games.bind("<<TreeviewSelect>>", self.app.onGameSelect)
+        self.listGames = ttk.Treeview(self.app.FRAME_left, show='tree', selectmode='browse', bootstyle="info")
+        self.listGames.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)  # Grid for Treeview to expand
+        self.listGames.bind("<<TreeviewSelect>>", self.app.onGameSelect)
 
         # Scrollbar for the Treeview
-        self.LIST_games_scrollbar = ttk.Scrollbar(self.app.FRAME_left, orient=VERTICAL, command=self.LIST_games.yview, bootstyle="danger")
-        self.LIST_games_scrollbar.grid(row=0, column=1, sticky="ns")  # Place scrollbar in the same row as Treeview, stretching vertically
+        self.listGames_scrollbar = ttk.Scrollbar(self.app.FRAME_left, orient=VERTICAL, command=self.listGames.yview, bootstyle="danger")
+        self.listGames_scrollbar.grid(row=0, column=1, sticky="ns")  # Place scrollbar in the same row as Treeview, stretching vertically
 
         # Configure grid to make the Treeview expand properly
         self.app.FRAME_left.grid_rowconfigure(0, weight=1)  # Row 0 (Treeview) expands to fill the space
         self.app.FRAME_left.grid_columnconfigure(0, weight=1)  # Column 0 (Treeview) expands to fill the space
 
         # Configure the Treeview to use the scrollbar
-        self.LIST_games.configure(yscrollcommand=self.LIST_games_scrollbar.set)
+        self.listGames.configure(yscrollcommand=self.listGames_scrollbar.set)
         
     def __addMissingGame(self):
         dialog = AddMissingGameDialog(self.root, self.data)
@@ -57,8 +56,9 @@ class ListGames:
             self.data.saveJSON(DataFile.INSTALLED_GAMES.value, installedGames)
 
         messagebox.showinfo("Success", f"Game '{gameName}' added successfully!")
+        self.populate()
         
-    def populateLIST_games(self):
+    def populate(self):
         self.gameList = []
         installedGameNames = {game.lower() for game in self.data.DATA_JSONinstalledGames.keys()}  # Get all installed game names (case-insensitive)
 
@@ -75,15 +75,15 @@ class ListGames:
             key=lambda x: x[0].lower()  # Sorting by the game name (case-insensitive)
         )
         self.gameList.extend(knownGames)
-        self.updateLIST_games()
+        self.update()
         
-    def updateLIST_games(self, *args):
+    def update(self, *args):
         searchTerm = self.app.searchVar.get().lower()
-        for item in self.LIST_games.get_children():
-            self.LIST_games.delete(item)
+        for item in self.listGames.get_children():
+            self.listGames.delete(item)
 
         sortedGames = sorted(self.gameList, key=lambda x: not x[1])
         for game, is_installed in sortedGames:
             if searchTerm in game.lower():
                 status = "\u2713" if is_installed else "\u2717"
-                self.LIST_games.insert("", "end", text=f"{status} {game}")
+                self.listGames.insert("", "end", text=f"{status} {game}")

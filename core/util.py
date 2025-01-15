@@ -9,38 +9,13 @@
 """
 
 import os
-import zipfile
 import re
+from core.enums import AppStates, AppConfig
 
 invalidChars = r'[\/:*?"<>|]'
-
-@staticmethod
-def zipFolder(sourceFolder, zipFilePath, progressCallback=None):
-    # Count total files first
-    total_files = sum([len(files) for _, _, files in os.walk(sourceFolder)])
-    current_file = 0
-    
-    with zipfile.ZipFile(zipFilePath, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        for root, _, files in os.walk(sourceFolder):
-            for file in files:
-                filepath = os.path.join(root, file)
-                arcname = os.path.relpath(filepath, sourceFolder)
-                zipf.write(filepath, arcname)
-                current_file += 1
-                if progressCallback:
-                    progress = (current_file / total_files) * 100
-                    progressCallback(progress)
-
-@staticmethod
-def extractZIPContent(zipFilePath, targetFolder):
-    with zipfile.ZipFile(zipFilePath, 'r') as zipf:
-        os.makedirs(targetFolder, exist_ok=True)
-        zipf.extractall(targetFolder)
-
-
 class Utility:
-    def __init__(self, data):
-        self.data = data
+    def __init__(self):
+        pass
     
     @staticmethod
     def adjustTreeviewHeight(treeview, maxItems=10):
@@ -62,3 +37,8 @@ class Utility:
     @staticmethod
     def openFolderInExplorer(path):
         os.startfile(path)
+        
+    @staticmethod
+    def debugPrint(message):
+        if AppConfig.STATE == AppStates.DEBUG:
+            print(message)

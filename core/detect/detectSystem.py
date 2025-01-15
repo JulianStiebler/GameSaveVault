@@ -1,7 +1,5 @@
 import json
-from .detectEpicGames import DetectGamesEpic
-from .detectSteamGames import DetectGamesSteam
-from .detectGeneralGames import DetectGamesGeneral
+from core.detect import DetectGamesEpic, DetectGamesGeneral, DetectGamesSteam
 from typing import Dict
 from core.enums import DataFile
 from core.model import PathInfo
