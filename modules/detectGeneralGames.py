@@ -17,6 +17,7 @@ from pathlib import Path
 import json
 import os
 from typing import Dict, Optional
+from core.enums import DataFile
 
 class DetectGamesGeneral:
     def __init__(self, data):
@@ -24,14 +25,14 @@ class DetectGamesGeneral:
         
     def GetSaveFolders(self):
         try:
-            with open(self.data.PATH_knownGamePaths, 'r') as f:
+            with open(DataFile.KNOWN_PATHS.value, 'r') as f:
                 known_paths = json.load(f)
         except FileNotFoundError:
-            print(f"Known game paths file not found: {self.data.PATH_knownGamePaths}")
+            print(f"Known game paths file not found: {DataFile.KNOWN_PATHS.value}")
             return {}
 
         try:
-            with open(self.data.pathInstalledGames, 'r') as f:
+            with open(DataFile.INSTALLED_GAMES.value, 'r') as f:
                 installedGames = json.load(f)
         except FileNotFoundError:
             installedGames = {}
@@ -64,6 +65,6 @@ class DetectGamesGeneral:
 
             return installedGames
         except Exception as e:
-            print(f"Error reading or parsing {self.data.PATH_knownGamePaths}: {e}")
+            print(f"Error reading or parsing {DataFile.KNOWN_PATHS.value}: {e}")
             return {}
 

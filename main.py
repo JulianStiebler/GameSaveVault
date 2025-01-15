@@ -12,6 +12,7 @@ from core.app import SaveFileManager
 from gui.screen.splash import SplashScreen
 from core.dataManager import DataManager
 import ttkbootstrap as ttk
+from core.enums import AppConfig
 
 def initGameSaveVault(splash, steps, root, data):
     def step(index):
@@ -33,21 +34,21 @@ def initGameSaveVault(splash, steps, root, data):
 
 if __name__ == "__main__":
     # Create main window first but don't show it
-    data = DataManager()
-    ROOT_main = ttk.Window(themename=data.WINDOW_STYLE)
+    dataObj = DataManager()
+    ROOT_main = ttk.Window(themename=AppConfig.THEME.value)
     ROOT_main.withdraw()
 
     # Create and show splash screen as a Toplevel window
     ROOT_splash = ttk.Toplevel(ROOT_main)
-    splash = SplashScreen(ROOT_splash)
+    splashObj = SplashScreen(ROOT_splash)
 
     steps = [
-        ("Initializing Epic Library...", data.detectSystem.initEpicLibrary),
-        ("Initializing Steam Library...", data.detectSystem.initSteamLibrary),
-        ("Initializing General Library...", data.detectSystem.initGeneralLibrary),
-        ("Loading Application Data...", data.initApplication)
+        ("Initializing Epic Library...", dataObj.detectSystem.initEpicLibrary),
+        ("Initializing Steam Library...", dataObj.detectSystem.initSteamLibrary),
+        ("Initializing General Library...", dataObj.detectSystem.initGeneralLibrary),
+        ("Loading Application Data...", dataObj.initApplication)
     ]
 
-    initGameSaveVault(splash, steps, ROOT_main, data)
+    initGameSaveVault(splashObj, steps, ROOT_main, dataObj)
 
     ROOT_splash.mainloop()

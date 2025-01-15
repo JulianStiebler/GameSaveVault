@@ -11,30 +11,32 @@
 import json
 import os
 import winreg
+from core.enums import RegistryKeys, DataFile
 
 class DetectGamesEpic:
     def __init__(self, data):
         self.data = data
+        self.epicPath = ""
 
     def GetInstallPath(self):
         """Fetch the Epic Games installation path from the Windows registry."""
         try:
             # Open the Epic Games registry key
-            registryKey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, self.data.EPIC_registryKey)
-            epicPath, _ = winreg.QueryValueEx(registryKey, "AppDataPath")
-            return epicPath
+            registryKey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, RegistryKeys.EPIC.value)
+            self.epicPath, _ = winreg.QueryValueEx(registryKey, "AppDataPath")
+            return self.epicPath
         except FileNotFoundError:
             print("Epic Games registry path not found.")
             return None
 
-    def GetInstalledGames(self, epicPath):
+    def GetInstalledGames(self):
         """Fetch and save installed games from the LauncherInstalled.dat file."""
-        if epicPath is None:
+        if self.epicPath is None:
             print("Epic Games path is None.")
             return
 
         # Go back two folders from the epic_path
-        basePath = os.path.abspath(os.path.join(epicPath, "..", ".."))
+        basePath = os.path.abspath(os.path.join(self.epicPath, "..", ".."))
         
         # Path to the LauncherInstalled.dat file
         epicGamesInfoFile = os.path.join(basePath, "UnrealEngineLauncher", "LauncherInstalled.dat")
@@ -45,8 +47,8 @@ class DetectGamesEpic:
 
         try:
             # Load existing installed games from the shared file
-            if os.path.exists(self.data.pathInstalledGames):
-                with open(self.data.pathInstalledGames, 'r', encoding='utf-8') as file:
+            if os.path.exists(DataFile.INSTALLED_GAMES.value):
+                with open(DataFile.INSTALLED_GAMES.value, 'r', encoding='utf-8') as file:
                     installedGames = json.load(file)
             else:
                 installedGames = {}

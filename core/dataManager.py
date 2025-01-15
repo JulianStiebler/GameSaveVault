@@ -12,74 +12,48 @@ import json
 from datetime import datetime
 from modules.detectSystem import DetectSystem
 from core.pathManager import PathManager
+from core.enums import AppConfig, DataFile, DataFolder
+from pathlib import Path
 
 class DataManager:
     def __init__(self):
-        self.PATH_steamLibrary = ""
-        self.DATA_STEAM_library = ""
+        # Initialize paths
+        self.DATA_STEAM_library = {}
+        self.DATA_EPIC_library = {}
+        self.DATA_GEN_library = {}
+        self.DATA_JSONinstalledGames = {}
+        self.DATA_JSONknownGamePaths = {}
+        self.DATA_JSONcustomGames = {}
         
-        self.DATA_EPIC_library = ""
+        self.PATH_steamLibrary = []  # Change to list since it stores multiple paths
         self.PATH_steamExe = ""
         self.PATH_epicLibrary = ""
         
-        self.DATA_GEN_library = ""
-        
-        self.FOLDER_Data = "data"
-        self.FOLDER_SaveGames = f"{self.FOLDER_Data}/savegames"
-        self.FOLDER_Paths = f"{self.FOLDER_Data}/paths"
-        
-        self.URL_SteamAppIDs = "https://api.steampowered.com/ISteamApps/GetAppList/v2/"
-        self.STEAM_registryKey = r"SOFTWARE\Valve\Steam"
-        self.EPIC_registryKey = r"SOFTWARE\WOW6432Node\Epic Games\EpicGamesLauncher"
-        
-        self.PATH_APPID = f"{self.FOLDER_Data}/appid.json"
-        self.pathInstalledGames = f"{self.FOLDER_Data}/installedGames.json"
-        self.PATH_knownGamePaths = f"{self.FOLDER_Data}/knownGamePaths.json"
-        self.PATH_customGames = f"{self.FOLDER_Data}/customGames.json"
-        
-        self.DATA_JSONinstalledGames = ""
-        self.DATA_JSONknownGamePaths = ""
-        self.DATA_JSONcustomGames = ""
-        
-        self.GITHUB_VERSION = "Version 0.9.9-alpha"
-        self.GITHUB_DATE = datetime.now().strftime("%d-%m-%Y")
-        self.GITHUB_ORIGIN = "JulianStiebler"
-        self.GITHUB_PROJECT = "GameSaveVault"
-        self.GITHUB_ASSIGNEES = "JulianStiebler"
-        
-        self.WINDOW_SIZE_X = 1000
-        self.WINDOW_SIZE_Y = 800
-        self.WINDOW_GEOMETRY = f"{self.WINDOW_SIZE_X}x{self.WINDOW_SIZE_Y}"
-        self.WINDOW_STYLE = "darkly"
-        self.WINDOW_TITLE = "Game Save Vault"
-        self.URL_GitHub = f"https://github.com/{self.GITHUB_ORIGIN}/{self.GITHUB_PROJECT}/tree/main"
-        self.URL_GitHub_FeatureRequest = f"https://github.com/{self.GITHUB_ORIGIN}/{self.GITHUB_PROJECT}/issues/new?assignees={self.GITHUB_ASSIGNEES}&labels=feature&projects=&template=feature_request.md&title=Feature+request"
-        self.URL_GitHub_BugReport = f"https://github.com/{self.GITHUB_ORIGIN}/{self.GITHUB_PROJECT}/issues/new?assignees={self.GITHUB_ASSIGNEES}&labels=bug&projects=&template=bug_report.md&title=Bug+report"
+        # Create required directories
+        Path(DataFolder.DATAROOT.value).mkdir(exist_ok=True)  # Use DataFolder instead of DataFile
+        Path(DataFolder.SAVEGAMES.value).mkdir(exist_ok=True)
+        Path(DataFolder.PATHS.value).mkdir(exist_ok=True)
 
         self.detectSystem = DetectSystem(self)
 
     def initApplication(self):
-        self.DATA_JSONinstalledGames = self.loadJSON(self.pathInstalledGames, convertRelativePaths=True)
-        self.DATA_JSONknownGamePaths = self.loadJSON(self.PATH_knownGamePaths)
-        self.DATA_JSONcustomGames = self.loadJSON(self.PATH_customGames)
+        self.DATA_JSONinstalledGames = self.loadJSON(DataFile.INSTALLED_GAMES.value, convertRelativePaths=True)
+        self.DATA_JSONknownGamePaths = self.loadJSON(DataFile.KNOWN_PATHS.value)
+        self.DATA_JSONcustomGames = self.loadJSON(DataFile.CUSTOM_GAMES.value)
 
     @staticmethod
     def loadJSON(filePath, convertRelativePaths=False):
         """
         Load JSON data from a file.
-        
-        Args:
-            filePath (str): Path to the JSON file
-            convertRelativePaths (bool): Convert relative paths to absolute if True
-        
-        Returns:
-            dict: Parsed JSON data with converted paths if specified
         """
         try:
-            with open(filePath, 'r') as f:
+            # Convert Path object to string if needed
+            file_path_str = str(filePath) if isinstance(filePath, Path) else filePath
+            
+            with open(file_path_str, 'r') as f:
                 data = json.load(f)
                 
-                if convertRelativePaths and "installedGames" in filePath:
+                if convertRelativePaths and "installedGames" in file_path_str:
                     # Convert paths to absolute for in-memory use
                     for game_data in data.values():
                         if 'pathSave' in game_data:

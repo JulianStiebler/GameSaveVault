@@ -2,6 +2,7 @@ import os
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import BOTTOM, LEFT, RIGHT, X
 from core.dataManager import DataManager
+from core.enums import AppConfigGithub
 
 
 class Footer:
@@ -13,9 +14,9 @@ class Footer:
         self.FRAME_footer.pack(side=BOTTOM, fill=X)
         
         links = {
-            "GitHub": self.data.URL_GitHub,
-            "Feature Request": self.data.URL_GitHub_FeatureRequest,
-            "Bug Report": self.data.URL_GitHub_BugReport
+            "GitHub": AppConfigGithub.GITHUB_URL_ORIGIN,
+            "Feature Request": AppConfigGithub.GITHUB_URL_FEATUREREQUEST,
+            "Bug Report": AppConfigGithub.GITHUB_URL_BUGREPORT
         }
         
         for name, url in links.items():
@@ -26,5 +27,5 @@ class Footer:
             self.LBL_FooterLink.bind("<Leave>", lambda e, label=self.LBL_FooterLink: label.config(foreground="#FFFFFF"))
             
         # Create non-clickable version label on the bottom right
-        LBL_Version = ttk.Label(self.FRAME_footer, text=self.data.GITHUB_VERSION, font=("Arial", 10), anchor="e", bootstyle="light")
+        LBL_Version = ttk.Label(self.FRAME_footer, text=AppConfigGithub.GITHUB_VERSION, font=("Arial", 10), anchor="e", bootstyle="light")
         LBL_Version.pack(side=RIGHT, padx=10)

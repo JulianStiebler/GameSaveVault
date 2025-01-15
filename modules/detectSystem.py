@@ -4,7 +4,7 @@ from .detectSteamGames import DetectGamesSteam
 from .detectGeneralGames import DetectGamesGeneral
 from core.pathManager import PathManager
 from typing import Dict
-from core.model import InstalledGame, KnownGamePath
+from core.enums import DataFile
 
 class DetectSystem:
     def __init__(self, dataManager):
@@ -13,15 +13,15 @@ class DetectSystem:
         self.detectEpic = DetectGamesEpic(self.data)
         self.detectSteam = DetectGamesSteam(self.data)
         self.detectGeneral = DetectGamesGeneral(self.data)
-        self.installedGames: Dict[str, InstalledGame] = {}
+        self.installedGames = {}
         
     def initEpicLibrary(self):
         self.data.PATH_epicLibrary = self.detectEpic.GetInstallPath()
-        self.data.DATA_EPIC_library = self.detectEpic.GetInstalledGames(self.data.PATH_epicLibrary)
+        self.data.DATA_EPIC_library = self.detectEpic.GetInstalledGames()
         self.saveInstalledGames(self.data.DATA_EPIC_library, "Epic")
 
     def initSteamLibrary(self):
-        self.detectSteam.GetAppIDList(self.data.URL_SteamAppIDs, self.data.PATH_APPID)
+        self.detectSteam.GetAppIDList()
         self.data.PATH_steamExe = self.detectSteam.GetInstallPath()
         self.data.PATH_steamLibrary = self.detectSteam.GetLibraryPath()
         self.data.DATA_STEAM_library = self.detectSteam.GetInstalledGames()
@@ -56,5 +56,5 @@ class DetectSystem:
                 self.installedGames[game_name] = game_data
 
         # Write updated data to file
-        with open(self.data.pathInstalledGames, 'w') as f:
+        with open(DataFile.INSTALLED_GAMES.value, 'w') as f:
             json.dump(self.installedGames, f, indent=4)

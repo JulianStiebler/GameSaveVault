@@ -13,13 +13,14 @@ from ttkbootstrap.constants import *
 import os
 import shutil
 from datetime import datetime
-from tkinter import filedialog, simpledialog, messagebox
+from tkinter import filedialog, messagebox
 from tkinter.messagebox import showinfo
 
 from core.dataManager import DataManager
 import core.util as util
 from gui import Footer
 from gui.screen.dialog import NamedBackupDialog, AddMissingGameDialog
+from core.enums import AppConfig, DataFile, DataFolder
 
 data = DataManager()
 
@@ -27,10 +28,10 @@ class SaveFileManager:
     def __init__(self, root, data):
         self.root = root
         self.data = data if data else DataManager()
-        self.root.title(self.data.WINDOW_TITLE)
-        self.root.geometry(self.data.WINDOW_GEOMETRY)
-        self.root.minsize(self.data.WINDOW_SIZE_X, self.data.WINDOW_SIZE_Y)
-        self.style = ttk.Style(self.data.WINDOW_STYLE)
+        self.root.title(AppConfig.TITLE.value)
+        self.root.geometry(AppConfig.WINDOW_GEOMETRY.value)
+        self.root.minsize(AppConfig.WINDOW_SIZE_X.value, AppConfig.WINDOW_SIZE_Y.value)
+        self.style = ttk.Style(AppConfig.THEME.value)
         self.selectedGameToDisplayDetails = None
         
         self.__setupGUI_searchBar()
@@ -123,7 +124,7 @@ class SaveFileManager:
 
         # Sanitize the selected game's name to ensure the folder name is valid
         sanitizedGameName = util.sanitizeFolderName_fix(self.selectedGameToDisplayDetails)
-        backupFolder = os.path.join(data.FOLDER_SaveGames, sanitizedGameName)
+        backupFolder = os.path.join(DataFolder.SAVEGAMES.value, sanitizedGameName)
         
         if os.path.exists(backupFolder):
             for file in os.listdir(backupFolder):
@@ -140,7 +141,7 @@ class SaveFileManager:
         savePath = self.data.detectSystem.pathManager.path_expand(
                         self.data.DATA_JSONinstalledGames[self.selectedGameToDisplayDetails].get("pathSave", "")
         )
-        backupFolder = os.path.join(data.FOLDER_SaveGames, sanitizedGameName)
+        backupFolder = os.path.join(DataFolder.SAVEGAMES.value, sanitizedGameName)
         os.makedirs(backupFolder, exist_ok=True)
         
         if not savePath:
@@ -185,7 +186,7 @@ class SaveFileManager:
         
         # Sanitize the selected game name for folder paths, but not for zip files
         sanitizedGameName = util.sanitizeFolderName_fix(self.selectedGameToDisplayDetails)
-        backupFolder = os.path.join(data.FOLDER_SaveGames, sanitizedGameName)
+        backupFolder = os.path.join(DataFolder.SAVEGAMES.value, sanitizedGameName)
         zipPath = os.path.join(backupFolder, zipFile)
 
         savePath = self.data.DATA_JSONinstalledGames[self.selectedGameToDisplayDetails].get("pathSave", "")
@@ -235,19 +236,19 @@ class SaveFileManager:
         isInstalled = result["isInstalled"]
 
         # Update customGames.json
-        customGames = self.data.loadJSON(self.data.PATH_customGames) if os.path.exists(self.data.PATH_customGames) else {"CustomPaths": {}}
+        customGames = self.data.loadJSON(DataFile.CUSTOM_GAMES.value) if os.path.exists(DataFile.CUSTOM_GAMES.value) else {"CustomPaths": {}}
         customGames["CustomPaths"][gameName] = savePath or ""
-        self.data.saveJSON(self.data.PATH_customGames, customGames)
+        self.data.saveJSON(DataFile.CUSTOM_GAMES.value, customGames)
 
         # Update installedGames.json if the game is installed
         if isInstalled:
-            installedGames = self.data.loadJSON(self.data.pathInstalledGames) if os.path.exists(self.data.pathInstalledGames) else {}
+            installedGames = self.data.loadJSON(DataFile.INSTALLED_GAMES.value) if os.path.exists(DataFile.INSTALLED_GAMES.value) else {}
             installedGames[gameName] = {
                 "platform": "Custom",
                 **({"pathInstall": installPath} if installPath else {}),
                 **({"pathSave": savePath} if savePath else {})
             }
-            self.data.saveJSON(self.data.pathInstalledGames, installedGames)
+            self.data.saveJSON(DataFile.INSTALLED_GAMES.value, installedGames)
 
         messagebox.showinfo("Success", f"Game '{gameName}' added successfully!")
         self.data.initApplication()

@@ -1,47 +1,172 @@
-from dataclasses import dataclass, asdict
-from typing import Dict, Optional
-from pydantic import AnyUrl
+from dataclasses import dataclass, field, asdict
+from typing import Dict, Optional, List
+from datetime import datetime
+from pathlib import Path
+from .enums import Platform, PathType, GameResource, BackupType, SystemPaths
+import os
 
 
 @dataclass
-class GameResources:
-    manual: Optional[AnyUrl] = None
-    guide: Optional[AnyUrl] = None
-    wiki: Optional[AnyUrl] = None
-
-@dataclass
-class KnownGamePath:
-    pathSave: str
-    imageHeader: Optional[AnyUrl] = None
-    resources: Optional[GameResources] = None
-
-@dataclass
-class InstalledGame:
-    name: str  # Required parameter
-    pathInstall: Optional[str] = None
-    pathSave: Optional[str] = None
+class GameMetadata:
+    name: str
     appid: Optional[str] = None
-    installdir: Optional[str] = None
-    platform: str = "General"  # Default, but can be overridden
+    platform: Platform = Platform.GENERAL
+    install_dir: Optional[str] = None
+    header_image: Optional[str] = None
+    manual_url: Optional[str] = None
+    guide_url: Optional[str] = None
+    wiki_url: Optional[str] = None
+    version: Optional[str] = None
+    last_updated: datetime = field(default_factory=datetime.now)
+
+@dataclass
+class PathInfo:
+    """Base class for path management"""
+    _system_paths: Dict[str, str] = field(default_factory=lambda: {
+        SystemPaths.LOCAL_APPDATA.value: os.environ.get('LOCALAPPDATA', ''),
+        SystemPaths.APPDATA.value: os.environ.get('APPDATA', ''),
+        SystemPaths.PROGRAM_FILES.value: os.environ.get('PROGRAMFILES', ''),
+        SystemPaths.PROGRAM_FILES_X86.value: os.environ.get('PROGRAMFILES(X86)', ''),
+        SystemPaths.USER_PROFILE.value: os.environ.get('USERPROFILE', '')
+    })
+
+    @classmethod
+    def to_absolute(cls, path: str, game_install: Optional[str] = None) -> str:
+        """Convert path to absolute"""
+        if game_install and SystemPaths.GAME_INSTALL.value in path:
+            path = path.replace(SystemPaths.GAME_INSTALL.value, game_install)
+        return os.path.normpath(os.path.expandvars(path))
+
+    @classmethod
+    def to_relative(cls, path: str) -> str:
+        """Convert absolute path to relative"""
+        if cls.is_relative(path):
+            return path
+            
+        normalized = os.path.normpath(path).lower()
+        for env_var, sys_path in sorted(
+            cls._system_paths.items(),
+            key=lambda x: len(x[1].split(os.sep)),
+            reverse=True
+        ):
+            if normalized.startswith(sys_path.lower()):
+                return path.replace(sys_path, env_var)
+        return path
+
+    @classmethod
+    def is_relative(cls, path: str) -> bool:
+        """Check if path contains environment variables"""
+        return any(var.lower() in path.lower() for var in cls._system_paths)
+
+@dataclass
+class GamePath(PathInfo):
+    path: str
+    type: PathType
+    _absolute_path: Optional[str] = field(default=None, init=False)
+    
+    def __post_init__(self):
+        self._absolute_path = None
+    
+    @property
+    def absolute(self) -> str:
+        """Get absolute path"""
+        if not self._absolute_path:
+            self._absolute_path = self.to_absolute(self.path)
+        return self._absolute_path
+    
+    @property
+    def relative(self) -> str:
+        """Get relative path"""
+        return self.to_relative(self.path)
+    
+    @property
+    def exists(self) -> bool:
+        """Check if path exists"""
+        return Path(self.absolute).exists()
+
+    def update(self, new_path: str):
+        """Update path and reset absolute cache"""
+        self.path = new_path
+        self._absolute_path = None
+        
+@dataclass
+class Game:
+    metadata: GameMetadata
+    paths: Dict[PathType, GamePath] = field(default_factory=dict)
+    
+    @property
+    def name(self) -> str:
+        return self.metadata.name
+    
+    def to_dict(self) -> dict:
+        return {
+            "metadata": asdict(self.metadata),
+            "paths": {k.name: v.path for k, v in self.paths.items()}
+        }
     
     @classmethod
-    def from_dict(cls, name: str, data: dict) -> 'InstalledGame':
-        # Keep existing platform if it's Steam or Epic, otherwise use General
-        platform = data.get('platform', 'General')
-        if platform not in ['Steam', 'Epic']:
-            platform = 'General'
-            
-        return cls(
-            name=name,
-            platform=platform,
-            pathInstall=data.get('pathInstall'),
-            pathSave=data.get('pathSave'),
-            appid=data.get('appid'),
-            installdir=data.get('installdir')
-        )
+    def from_dict(cls, data: dict) -> 'Game':
+        metadata = GameMetadata(**data["metadata"])
+        paths = {
+            PathType[k]: GamePath(path=v, type=PathType[k])
+            for k, v in data["paths"].items()
+        }
+        return cls(metadata=metadata, paths=paths)
+    
+    def get_path(self, path_type: PathType, relative: bool = False) -> Optional[str]:
+        """Get path of specified type"""
+        if path_type not in self.paths:
+            return None
+        return self.paths[path_type].relative if relative else self.paths[path_type].absolute
+    
+    def set_path(self, path_type: PathType, path: str):
+        """Set or update path"""
+        if path_type in self.paths:
+            self.paths[path_type].update(path)
+        else:
+            self.paths[path_type] = GamePath(path=path, type=path_type)
+
+@dataclass
+class GameLibrary:
+    games: Dict[str, Game] = field(default_factory=dict)
+    
+    def add_game(self, game: Game):
+        self.games[game.name] = game
+    
+    def get_by_platform(self, platform: Platform) -> List[Game]:
+        return [game for game in self.games.values() 
+                if game.metadata.platform == platform]
+
+@dataclass
+class Backup:
+    game_name: str
+    path: Path
+    type: BackupType
+    created_at: datetime = field(default_factory=datetime.now)
+    description: Optional[str] = None
 
     def to_dict(self) -> dict:
-        result = asdict(self)
-        # Exclude name from output as it's the key in json
-        return {k: v for k, v in result.items() 
-                if v is not None and k != 'name'}
+        return {
+            "game_name": self.game_name,
+            "path": str(self.path),
+            "type": self.type.name,
+            "created_at": self.created_at.isoformat(),
+            "description": self.description
+        }
+
+        
+@dataclass
+class GameResource:
+    """Resource links for a game (manual, guides etc)"""
+    url: str
+    type: GameResource
+    title: Optional[str] = None
+    language: str = "en"
+    
+@dataclass 
+class AppState:
+    """Application state tracking"""
+    selected_game: Optional[str] = None
+    current_platform: Platform = Platform.GENERAL
+    has_unsaved_changes: bool = False
+    last_backup_path: Optional[Path] = None

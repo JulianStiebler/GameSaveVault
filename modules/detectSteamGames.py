@@ -12,14 +12,15 @@ import requests
 import json
 import os
 import winreg
+from core.enums import RegistryKeys, DataFile, PublicSources
 
 class DetectGamesSteam:
     def __init__(self, data):
         self.data = data
     
     @staticmethod
-    def GetAppIDList(url, outputFile):
-        response = requests.get(url)
+    def GetAppIDList():
+        response = requests.get(PublicSources.STEAM_APPLIST.value)
 
         if response.status_code == 200:
             data = response.json()
@@ -30,14 +31,14 @@ class DetectGamesSteam:
             # Create a dictionary where appid is the key and name is the value
             output = {str(app['appid']): app['name'] for app in apps}
             
-            with open(outputFile, 'w') as file:
+            with open(DataFile.APPID.value, 'w') as file:
                 json.dump({'steamAppIDList': output}, file, indent=4)
         else:
             print(f"Error fetching API data. Status Code: {response.status_code}")
 
     def GetInstallPath(self):
         try:
-            registryKey = winreg.OpenKey(winreg.HKEY_CURRENT_USER, self.data.STEAM_registryKey)
+            registryKey = winreg.OpenKey(winreg.HKEY_CURRENT_USER, RegistryKeys.STEAM.value)
             steamPath, _ = winreg.QueryValueEx(registryKey, "SteamPath")
             return steamPath
         except FileNotFoundError:
@@ -88,8 +89,8 @@ class DetectGamesSteam:
             return gameDetails
         
         # Check if the output file already exists and load the existing data
-        if os.path.exists(self.data.pathInstalledGames):
-            with open(self.data.pathInstalledGames, 'r', encoding='utf-8') as file:
+        if os.path.exists(DataFile.INSTALLED_GAMES.value):
+            with open(DataFile.INSTALLED_GAMES.value, 'r', encoding='utf-8') as file:
                 installedGames = json.load(file)
         else:
             installedGames = {}

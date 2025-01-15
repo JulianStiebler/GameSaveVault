@@ -13,6 +13,7 @@ from tkinter import filedialog, messagebox  # Additional components needed for d
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 import os
+from core.enums import DataFile
 
 class AddMissingGameDialog:
     def __init__(self, root, data_manager=None):
@@ -103,8 +104,8 @@ class AddMissingGameDialog:
             return
 
         # Load current data
-        customGames = self.data.loadJSON(self.data.PATH_customGames) if os.path.exists(self.data.PATH_customGames) else {"CustomPaths": {}}
-        installedGames = self.data.loadJSON(self.data.pathInstalledGames) if os.path.exists(self.data.pathInstalledGames) else {}
+        customGames = self.data.loadJSON(DataFile.CUSTOM_GAMES.value) if os.path.exists(DataFile.CUSTOM_GAMES.value) else {"CustomPaths": {}}
+        installedGames = self.data.loadJSON(DataFile.INSTALLED_GAMES.value) if os.path.exists(DataFile.INSTALLED_GAMES.value) else {}
 
         # Check if game exists in installed games
         if name in installedGames:
