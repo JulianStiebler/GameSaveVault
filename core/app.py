@@ -88,51 +88,9 @@ class GameSaveVault:
         self.ELEM_details.LBL_gameTitle.config(text=gameName)
         self.selectedGameToDisplayDetails = gameName
 
-        self.updateDetailsView()
-        self.updateLIST_fileExplorer()
-        self.updateLIST_backupContents()
-
-    def updateDetailsView(self):
-        installPath = self.data.DATA_JSONinstalledGames.get(self.selectedGameToDisplayDetails, {}).get("pathInstall", None)
-        savePath = self.data.DATA_JSONinstalledGames.get(self.selectedGameToDisplayDetails, {}).get("pathSave", None)
-        knownSavePath = self.data.DATA_JSONknownGamePaths.get(self.selectedGameToDisplayDetails, "Unknown Path")
-
-        self.ELEM_details.LBL_installPath.config(text=f"Installation Folder: {PathInfo.to_relative(installPath)}" if installPath else "Installation folder not found.")
-        self.ELEM_details.LBL_savePath.config(text=f"Save Path: {PathInfo.to_relative(savePath)}" if savePath else f"Default Save Path: {knownSavePath}")
-
-        self.ELEM_details.BTN_openInstallPath.config(state=NORMAL if installPath else DISABLED)
-        self.ELEM_details.BTN_openSavePath.config(state=NORMAL if savePath else DISABLED)
-
-    def updateLIST_fileExplorer(self):
-        for item in self.ELEM_details.LIST_savePathContent.get_children():
-            self.ELEM_details.LIST_savePathContent.delete(item)
-
-        savePath = self.data.DATA_JSONinstalledGames.get(self.selectedGameToDisplayDetails, {}).get("pathSave", None)
-        if savePath and os.path.exists(savePath):
-            for file in os.listdir(savePath):
-                filePath = os.path.join(savePath, file)
-                modifiedTime = datetime.fromtimestamp(os.path.getmtime(filePath)).strftime("%d-%m-%Y %H:%M:%S")
-                self.ELEM_details.LIST_savePathContent.insert("", "end", values=(file, modifiedTime))
-
-        # Adjust the height of the Treeview
-        self.data.utility.adjustTreeviewHeight(self.ELEM_details.LIST_savePathContent)
-
-
-    def updateLIST_backupContents(self):
-        for item in self.ELEM_details.LIST_backupContents.get_children():
-            self.ELEM_details.LIST_backupContents.delete(item)
-
-        # Sanitize the selected game's name to ensure the folder name is valid
-        sanitizedGameName = self.data.utility.sanitizeFolderName_fix(self.selectedGameToDisplayDetails)
-        backupFolder = os.path.join(DataFolder.SAVEGAMES.value, sanitizedGameName)
-        
-        if os.path.exists(backupFolder):
-            for file in os.listdir(backupFolder):
-                if file.endswith(".zip"):
-                    self.ELEM_details.LIST_backupContents.insert("", "end", text=file)
-
-        # Adjust the height of the Treeview
-        self.data.utility.adjustTreeviewHeight(self.ELEM_details.LIST_backupContents)
+        self.ELEM_details.updateDetailsView()
+        self.ELEM_details.updateLIST_fileExplorer()
+        self.ELEM_details.updateLIST_backupContents()
         
             
 if __name__ == "__main__":

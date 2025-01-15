@@ -20,11 +20,9 @@ GitHub Repository: https://github.com/JulianStiebler/GameSaveVault
 GitHub License: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 GitHub License File: https://github.com/JulianStiebler/GameSaveVault/blob/main/LICENSE
 
-Last Edited: 11.01.2025
+Last Edited: 16.01.2025
 """
 
-from .listBackup import ListBackupExplorer
-from .listFileExplorer import ListFileExplorer
 from .listGames import ListGames
 
-__all__ = ["ListBackupExplorer", "ListFileExplorer", "ListGames"]
+__all__ = ["ListGames"]

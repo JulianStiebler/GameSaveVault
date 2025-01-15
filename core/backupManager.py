@@ -65,7 +65,7 @@ class BackupManager:
         except Exception as e:
             messagebox.showerror("Error", f"Failed to create backup: {str(e)}")
         
-        self.app.updateLIST_backupContents()
+        self.app.ELEM_details.updateLIST_backupContents()
         messagebox.showinfo("Success", f"Backup '{zipName}' created successfully!")
 
     def apply(self, selectedZip):
@@ -84,7 +84,7 @@ class BackupManager:
             
         os.makedirs(savePath, exist_ok=True)
         self.extractZIPContent(zipPath, savePath)
-        self.app.updateLIST_backupContents()
+        self.app.ELEM_details.updateLIST_backupContents()
         messagebox.showinfo("Success", f"Selected backup '{selectedZip}' applied successfully!")
         
 
