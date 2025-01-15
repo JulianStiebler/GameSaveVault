@@ -20,7 +20,7 @@ from core.model import PathInfo
 from core.enums import AppConfig, DataFile, DataFolder
 import core.util as util
 
-from gui.elements import Footer, Details, SearchBar, SideBar
+from gui.elements import Footer, Details, SearchBar, SideBar, ContextMenu
 from gui.screen.dialog import NamedBackupDialog, AddMissingGameDialog
 
 data = DataManager()
@@ -37,24 +37,14 @@ class SaveFileManager:
         
         # ------------------------------------------ Runtime Variables ------------------------------------------
         self.selectedGameToDisplayDetails = None
-        self.searchVar = ttk.StringVar()
-        self.searchVar.trace_add("write", self.updateLIST_games)
-        
         
         # ------------------------------------------ GUI Initialization ------------------------------------------
-        self.menu_bar = ttk.Menu(self.root)
-
-        # Program menu
-        self.program_menu = ttk.Menu(self.menu_bar, tearoff=0)
-        self.program_menu.add_command(label="Exit", command=self.root.quit)  # Placeholder
-        self.menu_bar.add_cascade(label="Program", menu=self.program_menu)
-
-        # Add the menu bar to the application
-        self.root.config(menu=self.menu_bar)
         self.FRAME_top = ttk.Frame(self.root)
+        self.context_menu = ContextMenu(self.root, self.data, self)
+        self.searchBar = SearchBar(self.root, self.data, self)
+        self.searchBar.searchVar.trace_add("write", self.updateLIST_games)
         self.FRAME_top.pack(fill=ttk.X, padx=10, pady=10)
         
-        self.searchBar = SearchBar(self.root, self.data, self)
         self.FRAME_main = ttk.Panedwindow(self.root, orient=HORIZONTAL)
         self.FRAME_main.pack(fill=BOTH, expand=True, padx=10, pady=10)
         
@@ -104,7 +94,7 @@ class SaveFileManager:
         self.updateLIST_games()
 
     def updateLIST_games(self, *args):
-        searchTerm = self.searchVar.get().lower()
+        searchTerm = self.searchBar.searchVar.get().lower()
         for item in self.LIST_games.get_children():
             self.LIST_games.delete(item)
 

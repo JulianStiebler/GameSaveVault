@@ -6,6 +6,7 @@ class SearchBar:
         self.root = root
         self.data = data
         self.app = app
-    
-        INP_SearchBar = ttk.Entry(self.app.FRAME_top, textvariable=self.app.searchVar, font=("Arial", 14))
+        
+        self.searchVar = ttk.StringVar()
+        INP_SearchBar = ttk.Entry(self.app.FRAME_top, textvariable=self.searchVar, font=("Arial", 14))
         INP_SearchBar.pack(fill=X, padx=10, pady=5)
