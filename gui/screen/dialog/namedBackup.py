@@ -25,7 +25,6 @@ Last Edited: 16.01.2025
 
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-from datetime import datetime
 import tkinter as tk
 from tkinter import messagebox
 import os

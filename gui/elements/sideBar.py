@@ -1,6 +1,6 @@
-from .inner import ListGames
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
+from .inner import ListGames
 
 class SideBar:
     def __init__(self, root, data, app):
