@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field, asdict
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, ClassVar
 from datetime import datetime
 from pathlib import Path
-from .enums import Platform, PathType, DataFolder, BackupType, SystemPaths
+from .enums import Platform, PathType, DataFile, BackupType, SystemPaths
 import os
 import json
 
@@ -23,23 +23,18 @@ class GameMetadata:
 @dataclass
 class PathInfo:
     """Base class for path management"""
-    _system_paths: Dict[str, str] = field(default_factory=lambda: {
-        SystemPaths.GAME_INSTALL.value: '',  # Empty by default, set per game
+    _system_paths: ClassVar[Dict[str, str]] = {
         SystemPaths.LOCAL_APPDATA.value: os.environ.get('LOCALAPPDATA', ''),
         SystemPaths.APPDATA.value: os.environ.get('APPDATA', ''),
         SystemPaths.PROGRAM_FILES.value: os.environ.get('PROGRAMFILES', ''),
         SystemPaths.PROGRAM_FILES_X86.value: os.environ.get('PROGRAMFILES(X86)', ''),
         SystemPaths.USER_PROFILE.value: os.environ.get('USERPROFILE', '')
-    })
+    }
 
     @classmethod
     def get_game_install_path(cls, game_name: str) -> Optional[str]:
         try:
-            install_file = Path(DataFolder.DATAROOT.value) / "installedGames.json"
-            if not install_file.exists():
-                return None
-                
-            with open(install_file, 'r') as f:
+            with open(DataFile.INSTALLED_GAMES, 'r') as f:
                 installed_games = json.load(f)
                 
             if game_name in installed_games:

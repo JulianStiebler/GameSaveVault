@@ -11,7 +11,7 @@
 import json
 from datetime import datetime
 from modules.detectSystem import DetectSystem
-from core.pathManager import PathManager
+from core.model import PathInfo
 from core.enums import DataFile, DataFolder
 from pathlib import Path
 
@@ -56,12 +56,12 @@ class DataManager:
                     # Convert paths to absolute for in-memory use
                     for game_data in data.values():
                         if 'pathSave' in game_data:
-                            game_data['pathSave'] = PathManager.path_expand(
+                            game_data['pathSave'] = PathInfo.to_absolute(
                                 game_data['pathSave'],
                                 game_data.get('pathInstall')
                             )
                         if 'pathInstall' in game_data:
-                            game_data['pathInstall'] = PathManager.path_expand(
+                            game_data['pathInstall'] = PathInfo.to_absolute(
                                 game_data['pathInstall']
                             )
                 

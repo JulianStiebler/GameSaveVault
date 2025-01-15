@@ -2,14 +2,13 @@ import json
 from .detectEpicGames import DetectGamesEpic
 from .detectSteamGames import DetectGamesSteam
 from .detectGeneralGames import DetectGamesGeneral
-from core.pathManager import PathManager
 from typing import Dict
 from core.enums import DataFile
+from core.model import PathInfo
 
 class DetectSystem:
     def __init__(self, dataManager):
         self.data = dataManager
-        self.pathManager = PathManager(self.data)
         self.detectEpic = DetectGamesEpic(self.data)
         self.detectSteam = DetectGamesSteam(self.data)
         self.detectGeneral = DetectGamesGeneral(self.data)
@@ -35,9 +34,9 @@ class DetectSystem:
         for game_name, game_data in new_games.items():
             # Convert paths to relative
             if 'pathInstall' in game_data:
-                game_data['pathInstall'] = self.pathManager.path_make_relative(game_data['pathInstall'])
+                game_data['pathInstall'] = PathInfo.to_relative(game_data['pathInstall'])
             if 'pathSave' in game_data:
-                game_data['pathSave'] = self.pathManager.path_make_relative(game_data['pathSave'])
+                game_data['pathSave'] = PathInfo.to_relative(game_data['pathSave'])
             
             # Update or create entry
             if game_name in self.installedGames:
