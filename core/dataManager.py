@@ -12,7 +12,7 @@ import json
 from datetime import datetime
 from modules.detectSystem import DetectSystem
 from core.pathManager import PathManager
-from core.enums import AppConfig, DataFile, DataFolder
+from core.enums import DataFile, DataFolder
 from pathlib import Path
 
 class DataManager:
@@ -32,7 +32,6 @@ class DataManager:
         # Create required directories
         Path(DataFolder.DATAROOT.value).mkdir(exist_ok=True)  # Use DataFolder instead of DataFile
         Path(DataFolder.SAVEGAMES.value).mkdir(exist_ok=True)
-        Path(DataFolder.PATHS.value).mkdir(exist_ok=True)
 
         self.detectSystem = DetectSystem(self)
 

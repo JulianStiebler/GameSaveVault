@@ -2,8 +2,9 @@ from dataclasses import dataclass, field, asdict
 from typing import Dict, Optional, List
 from datetime import datetime
 from pathlib import Path
-from .enums import Platform, PathType, GameResource, BackupType, SystemPaths
+from .enums import Platform, PathType, DataFolder, BackupType, SystemPaths
 import os
+import json
 
 
 @dataclass
@@ -23,6 +24,7 @@ class GameMetadata:
 class PathInfo:
     """Base class for path management"""
     _system_paths: Dict[str, str] = field(default_factory=lambda: {
+        SystemPaths.GAME_INSTALL.value: '',  # Empty by default, set per game
         SystemPaths.LOCAL_APPDATA.value: os.environ.get('LOCALAPPDATA', ''),
         SystemPaths.APPDATA.value: os.environ.get('APPDATA', ''),
         SystemPaths.PROGRAM_FILES.value: os.environ.get('PROGRAMFILES', ''),
@@ -31,10 +33,28 @@ class PathInfo:
     })
 
     @classmethod
-    def to_absolute(cls, path: str, game_install: Optional[str] = None) -> str:
-        """Convert path to absolute"""
-        if game_install and SystemPaths.GAME_INSTALL.value in path:
-            path = path.replace(SystemPaths.GAME_INSTALL.value, game_install)
+    def get_game_install_path(cls, game_name: str) -> Optional[str]:
+        try:
+            install_file = Path(DataFolder.DATAROOT.value) / "installedGames.json"
+            if not install_file.exists():
+                return None
+                
+            with open(install_file, 'r') as f:
+                installed_games = json.load(f)
+                
+            if game_name in installed_games:
+                return installed_games[game_name].get('pathInstall')
+        except Exception as e:
+            print(f"Error reading game install path: {e}")
+        return None
+
+    @classmethod
+    def to_absolute(cls, path: str, game_name: Optional[str] = None) -> str:
+        """Convert path to absolute with game install path resolution"""
+        if SystemPaths.GAME_INSTALL.value in path and game_name:
+            game_install = cls.get_game_install_path(game_name)
+            if game_install:
+                path = path.replace(SystemPaths.GAME_INSTALL.value, game_install)
         return os.path.normpath(os.path.expandvars(path))
 
     @classmethod
@@ -159,7 +179,7 @@ class Backup:
 class GameResource:
     """Resource links for a game (manual, guides etc)"""
     url: str
-    type: GameResource
+    type: str
     title: Optional[str] = None
     language: str = "en"
     
