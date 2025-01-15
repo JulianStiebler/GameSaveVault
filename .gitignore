@@ -7,4 +7,5 @@ build/
 dist/
 data/dev.py
 data/appid.json
+cloc.py
 
