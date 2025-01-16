@@ -26,15 +26,15 @@ Last Edited: 16.01.2025
 import json
 import os
 import winreg
-
+from typing import TYPE_CHECKING, Optional, Dict, List
+from pathlib import Path
 from core.enums import RegistryKeys, DataFile
 
 class DetectGamesEpic:
-    def __init__(self, data):
-        self.data = data
-        self.epicPath = ""
+    def __init__(self):
+        self.epicPath: Optional[Path] = ""
 
-    def GetInstallPath(self):
+    def GetInstallPath(self) -> Path | None:
         """Fetch the Epic Games installation path from the Windows registry."""
         try:
             # Open the Epic Games registry key
@@ -45,17 +45,16 @@ class DetectGamesEpic:
             print("Epic Games registry path not found.")
             return None
 
-    def GetInstalledGames(self):
+    def GetInstalledGames(self) -> Dict[str, Dict[str, Optional[str]]] | dict | None:
         """Fetch and save installed games from the LauncherInstalled.dat file."""
         if self.epicPath is None:
             print("Epic Games path is None.")
             return
 
         # Go back two folders from the epic_path
-        basePath = os.path.abspath(os.path.join(self.epicPath, "..", ".."))
-        
+        basePath: str = os.path.abspath(os.path.join(self.epicPath, "..", ".."))
         # Path to the LauncherInstalled.dat file
-        epicGamesInfoFile = os.path.join(basePath, "UnrealEngineLauncher", "LauncherInstalled.dat")
+        epicGamesInfoFile: str = os.path.join(basePath, "UnrealEngineLauncher", "LauncherInstalled.dat")
         
         if not os.path.exists(epicGamesInfoFile):
             print(f"LauncherInstalled.dat not found at {epicGamesInfoFile}.")
@@ -65,13 +64,13 @@ class DetectGamesEpic:
             # Load existing installed games from the shared file
             if os.path.exists(DataFile.INSTALLED_GAMES.value):
                 with open(DataFile.INSTALLED_GAMES.value, 'r', encoding='utf-8') as file:
-                    installedGames = json.load(file)
+                    installedGames: Dict[str, Dict[str, Optional[str]]] = json.load(file)
             else:
-                installedGames = {}
+                installedGames: Dict[str, Dict[str, Optional[str]]] = {}
 
             # Open and load the JSON content from LauncherInstalled.dat
             with open(epicGamesInfoFile, 'r', encoding='utf-8') as file:
-                data = json.load(file)
+                data: Dict[str, List[Dict[str, str]]] = json.load(file)
 
             # Iterate over the installation list and filter out Unreal Engine related entries
             for app in data.get('InstallationList', []):

@@ -106,11 +106,10 @@ class Details:
         self.FRAME_backupButtons.pack(fill=X, pady=5)
         
     def updateDetailsView(self):
-        installPath = self.data.DATA_JSONinstalledGames.get(self.app.selectedGameToDisplay.metadata.name, {}).get("pathInstall", None)
-        savePath = self.data.DATA_JSONinstalledGames.get(self.app.selectedGameToDisplay.metadata.name, {}).get("pathSave", None)
-        knownSavePath = self.data.DATA_JSONknownGamePaths.get(self.app.selectedGameToDisplay.metadata.name, "Unknown Path")
+        installPath = self.data.DATA_JSONinstalledGames.get(self.app.selectedGameToDisplay, {}).get("pathInstall", None)
+        savePath = self.data.DATA_JSONinstalledGames.get(self.app.selectedGameToDisplay, {}).get("pathSave", None)
+        knownSavePath = self.data.DATA_JSONknownGamePaths.get(self.app.selectedGameToDisplay, "Unknown Path")
         
-
         self.LBL_installPath.config(text=f"Installation Folder: {PathInfo.to_relative(installPath)}" if installPath else "Installation folder not found.")
         self.LBL_savePath.config(text=f"Save Path: {PathInfo.to_relative(savePath)}" if savePath else f"Default Save Path: {knownSavePath}")
 
@@ -121,7 +120,7 @@ class Details:
         for item in self.LIST_savePathContent.get_children():
             self.LIST_savePathContent.delete(item)
 
-        savePath = self.data.DATA_JSONinstalledGames.get(self.app.selectedGameToDisplay.metadata.name, {}).get("pathSave", None)
+        savePath = self.data.DATA_JSONinstalledGames.get(self.app.selectedGameToDisplay, {}).get("pathSave", None)
         if savePath and os.path.exists(savePath):
             for file in os.listdir(savePath):
                 filePath = os.path.join(savePath, file)
@@ -136,7 +135,7 @@ class Details:
             self.LIST_backupContents.delete(item)
 
         # Sanitize the selected game's name to ensure the folder name is valid
-        sanitizedGameName = self.data.utility.sanitizeFolderName_fix(self.app.selectedGameToDisplay.metadata.name)
+        sanitizedGameName = self.data.utility.sanitizeFolderName_fix(self.app.selectedGameToDisplay)
         backupFolder = os.path.join(DataFolder.SAVEGAMES.value, sanitizedGameName)
         
         if os.path.exists(backupFolder):
@@ -157,26 +156,26 @@ class Details:
             return ""
 
     def __openInstallationFolder(self):
-        installPath = self.data.DATA_JSONinstalledGames[self.app.selectedGameToDisplay.metadata.name].get("pathInstall", None)
+        installPath = self.data.DATA_JSONinstalledGames[self.app.selectedGameToDisplay].get("pathInstall", None)
         if installPath:
             self.data.utility.openFolderInExplorer(installPath)
 
     def __openSaveFolder(self):
-        savePath = self.data.DATA_JSONinstalledGames[self.app.selectedGameToDisplay.metadata.name].get("pathSave", None)
+        savePath = self.data.DATA_JSONinstalledGames[self.app.selectedGameToDisplay].get("pathSave", None)
         if savePath:
             self.data.utility.openFolderInExplorer(savePath)
             
     def __setInstallPath(self):
         folder = filedialog.askdirectory(title="Select Installation Folder")
         if folder:
-            self.data.DATA_JSONinstalledGames.setdefault(self.app.selectedGameToDisplay.metadata.name, {})["pathInstall"] = folder
+            self.data.DATA_JSONinstalledGames.setdefault(self.app.selectedGameToDisplay, {})["pathInstall"] = folder
             self.app.updatePaths()
             self.data.saveJSON(self.data.PATH_JSONinstalledGames, self.data.DATA_JSONinstalledGames)
 
     def __setSavePath(self):
         folder = filedialog.askdirectory(title="Select Save Path Folder")
         if folder:
-            self.data.DATA_JSONinstalledGames.setdefault(self.app.selectedGameToDisplay.metadata.name, {})["pathSave"] = folder
+            self.data.DATA_JSONinstalledGames.setdefault(self.app.selectedGameToDisplay, {})["pathSave"] = folder
             self.app.updatePaths()
             self.app.updateSaveFolderContents()
             self.data.saveJSON(self.data.PATH_JSONinstalledGames, self.data.DATA_JSONinstalledGames)

@@ -42,9 +42,8 @@ class DataManager:
         self.DATA_JSONknownGamePaths = {}
         self.DATA_JSONcustomGames = {}
         
-        self.PATH_steamLibrary = []  # Change to list since it stores multiple paths
-        self.PATH_steamExe = ""
-        self.PATH_epicLibrary = ""
+        self.PATH_steamLibrary = None
+        self.PATH_epicLibrary = None
         
         # Create required directories
         Path(DataFolder.DATAROOT.value).mkdir(exist_ok=True)  # Use DataFolder instead of DataFile
@@ -100,7 +99,7 @@ class DataManager:
         
     # Rework
     @staticmethod
-    def loadJSONNew(filePath):
+    def loadJSONNew(filePath: Path) -> GameLibrary:
         """
         Load JSON data from a file and convert it into the appropriate models.
 

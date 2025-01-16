@@ -40,9 +40,9 @@ class BackupManager:
         self.app = app
         
     def create(self, isNamed=False):
-        sanitizedGameName = self.data.utility.sanitizeFolderName_fix(self.app.selectedGameToDisplay.metadata.name)
+        sanitizedGameName = self.data.utility.sanitizeFolderName_fix(self.app.selectedGameToDisplay)
         
-        savePath = self.data.DATA_JSONinstalledGames[self.app.selectedGameToDisplay.metadata.name].get("pathSave", "")
+        savePath = self.data.DATA_JSONinstalledGames[self.app.selectedGameToDisplay].get("pathSave", "")
         backupFolder = os.path.join(DataFolder.SAVEGAMES.value, sanitizedGameName)
         os.makedirs(backupFolder, exist_ok=True)
         
@@ -74,11 +74,11 @@ class BackupManager:
             return
         
         # Sanitize the selected game name for folder paths, but not for zip files
-        sanitizedGameName = self.data.utility.sanitizeFolderName_fix(self.app.selectedGameToDisplay.metadata.name)
+        sanitizedGameName = self.data.utility.sanitizeFolderName_fix(self.app.selectedGameToDisplay)
         backupFolder = os.path.join(DataFolder.SAVEGAMES.value, sanitizedGameName)
         zipPath = os.path.join(backupFolder, selectedZip)
 
-        savePath = self.data.DATA_JSONinstalledGames[self.app.selectedGameToDisplay.metadata.name].get("pathSave", "")
+        savePath = self.data.DATA_JSONinstalledGames[self.app.selectedGameToDisplay].get("pathSave", "")
         if os.path.exists(savePath):
             shutil.rmtree(savePath)
             

@@ -33,9 +33,9 @@ from core.detect import DetectGamesEpic, DetectGamesGeneral, DetectGamesSteam
 class DetectSystem:
     def __init__(self, dataManager):
         self.data = dataManager
-        self.detectEpic = DetectGamesEpic(self.data)
-        self.detectSteam = DetectGamesSteam(self.data)
-        self.detectGeneral = DetectGamesGeneral(self.data)
+        self.detectEpic = DetectGamesEpic()
+        self.detectSteam = DetectGamesSteam()
+        self.detectGeneral = DetectGamesGeneral()
         self.installedGames = {}
         
     def initEpicLibrary(self):
@@ -45,7 +45,6 @@ class DetectSystem:
 
     def initSteamLibrary(self):
         self.detectSteam.GetAppIDList()
-        self.data.PATH_steamExe = self.detectSteam.GetInstallPath()
         self.data.PATH_steamLibrary = self.detectSteam.GetLibraryPath()
         self.data.DATA_STEAM_library = self.detectSteam.GetInstalledGames()
         self.saveInstalledGames(self.data.DATA_STEAM_library, "Steam")

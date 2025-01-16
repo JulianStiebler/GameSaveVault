@@ -25,14 +25,12 @@ Last Edited: 16.01.2025
 
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-import os
-from datetime import datetime
-from tkinter import filedialog
 
 from core import DataManager, BackupManager
-from core.model import PathInfo
-from core.enums import AppConfig, DataFolder
+from core.enums import AppConfig
+from core.model import Game
 from gui.elements import Footer, Details, SearchBar, SideBar, ContextMenu
+from typing import TypeVar
 
 data = DataManager()
 
@@ -46,11 +44,14 @@ class GameSaveVault:
         self.root.minsize(AppConfig.WINDOW_SIZE_X.value, AppConfig.WINDOW_SIZE_Y.value)
         self.style = ttk.Style(AppConfig.WINDOW_THEME.value)
         self.backupManager = BackupManager(self.root, self.data, self)
+        
     
         
         # ------------------------------------------ Runtime Variables ------------------------------------------
-        self.selectedGameToDisplay = None
-        self.searchVar = ttk.StringVar()
+        # This will be a GameLibrary object, or if not known then just name.
+        self.selectedGameToDisplay: str = None
+        self.selectedGameToDisplayDetails: Game = None
+        self.searchVar: ttk.StringVar = ttk.StringVar()
         
         # ------------------------------------------ GUI Initialization ------------------------------------------
         self.FRAME_top = ttk.Frame(self.root)
@@ -80,22 +81,19 @@ class GameSaveVault:
         self.root.update_idletasks()
             
     def onGameSelect(self, event):
-        _, _, self.selectedGameToDisplay = self.getSelectedGame()
+        self.selectedGameToDisplay: str = self.getSelectedGame()
+        self.selectedGameToDisplayDetails: Game = self.data.DATA_JSONknownGamePathsNew.games.get(self.selectedGameToDisplay)
 
-        self.ELEM_details.LBL_gameTitle.config(text=self.selectedGameToDisplay.metadata.name)
+        self.ELEM_details.LBL_gameTitle.config(text=self.selectedGameToDisplay)
         self.ELEM_details.updateDetailsView()
         self.ELEM_details.updateLIST_fileExplorer()
         self.ELEM_details.updateLIST_backupContents()
         
     def getSelectedGame(self):
-        listObj = self.ELEM_sideBar.listGames.listGames.selection()
-        rawName = self.ELEM_sideBar.listGames.listGames.item(listObj[0], "text")[2:].strip()
-        selectedGameObj = self.data.DATA_JSONknownGamePathsNew.games.get(rawName)
-        # If not found, then check DATA_JSONinstalledGamesNew
-        if not selectedGameObj:
-            selectedGameObj = self.data.DATA_JSONinstalledGamesNew.games.get(rawName)
-        
-        return listObj, rawName, selectedGameObj
+        listTuple: tuple[str, ...] = self.ELEM_sideBar.listGames.listGames.selection()
+        rawName: str = self.ELEM_sideBar.listGames.listGames.item(listTuple[0], "text")[2:].strip()
+
+        return rawName
         
     
 if __name__ == "__main__":

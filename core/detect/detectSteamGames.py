@@ -31,8 +31,8 @@ import winreg
 from core.enums import RegistryKeys, DataFile, PublicSources
 
 class DetectGamesSteam:
-    def __init__(self, data):
-        self.data = data
+    def __init__(self):
+        self.steamPath = None
     
     @staticmethod
     def GetAppIDList():
@@ -55,17 +55,18 @@ class DetectGamesSteam:
     def GetInstallPath(self):
         try:
             registryKey = winreg.OpenKey(winreg.HKEY_CURRENT_USER, RegistryKeys.STEAM.value)
-            steamPath, _ = winreg.QueryValueEx(registryKey, "SteamPath")
-            return steamPath
+            self.steamPath, _ = winreg.QueryValueEx(registryKey, "SteamPath")
         except FileNotFoundError:
             print("Steam path not found in the registry.")
             return None
 
     def GetLibraryPath(self):
-        libraryFolderPath = os.path.join(self.data.PATH_steamExe, "steamapps", "libraryfolders.vdf")
+        self.GetInstallPath()
+            
+        libraryFolderPath = os.path.join(self.steamPath, "steamapps", "libraryfolders.vdf")
 
         if not os.path.exists(libraryFolderPath):
-            print(f"libraryfolders.vdf not found in {self.data.PATH_steamExe}.")
+            print(f"libraryfolders.vdf not found in {self.steamPath}.")
             return []
 
         # Read and parse the VDF file manually (as a normal text file)
