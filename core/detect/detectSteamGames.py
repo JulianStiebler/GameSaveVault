@@ -31,8 +31,8 @@ import winreg
 from core.enums import RegistryKeys, DataFile, PublicSources
 
 class DetectGamesSteam:
-    def __init__(self):
-        self.steamPath = None
+    def __init__(self, data):
+        self.data = data
     
     @staticmethod
     def GetAppIDList():

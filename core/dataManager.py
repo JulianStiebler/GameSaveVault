@@ -113,7 +113,7 @@ class DataManager:
             with open(file_path_str, 'r') as f:
                 raw_data = json.load(f)
 
-            game_library = GameLibrary()
+            gameLibrary: GameLibrary = GameLibrary()
 
             for game_name, game_data in raw_data.items():
                 # Extract metadata
@@ -138,9 +138,9 @@ class DataManager:
 
                 # Create Game object and add to library
                 game = Game(metadata=metadata, paths=paths)
-                game_library.add_game(game)
+                gameLibrary.add_game(game)
 
-            return game_library
+            return gameLibrary
         
         except FileNotFoundError:
             print(f"File not found: {filePath}")

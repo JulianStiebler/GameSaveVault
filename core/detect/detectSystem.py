@@ -34,7 +34,7 @@ class DetectSystem:
     def __init__(self, dataManager):
         self.data = dataManager
         self.detectEpic = DetectGamesEpic()
-        self.detectSteam = DetectGamesSteam()
+        self.detectSteam = DetectGamesSteam(self.data)
         self.detectGeneral = DetectGamesGeneral()
         self.installedGames = {}
         
